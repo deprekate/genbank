@@ -1,4 +1,6 @@
+import sys
+
 from genbank.file import File
 
-f = File("phiX174.gbk")
+f = File(sys.argv[1])
 print(f)
