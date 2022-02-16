@@ -79,7 +79,7 @@ class Feature():
 				yield i+1
 		for left,right in self.pairs:
 			#left,right = map(int, [ item.replace('<','').replace('>','') for item in self.pair ] )
-			for i in range(left,right):
+			for i in range(left,right+1):
 				yield i
 
 	def codon_locations(self):
@@ -90,12 +90,11 @@ class Feature():
 
 	def codons(self):
 		assert self.type == 'CDS'
-		if self.strand > 0:
-			for locations in self.codon_locations():
-				yield ''.join([self.locus.dna[loc-1] for loc in locations])
-		else:
-			for locations in self.codon_locations():
-				yield rev_comp(''.join([self.locus.dna[loc-1] for loc in locations]))
+		for locations in self.codon_locations():
+			if self.strand > 0:
+				yield ''.join([self.locus.dna[loc-1] if loc else '' for loc in locations])
+			else:
+				yield rev_comp(''.join([self.locus.dna[loc-1] if loc else '' for loc in locations]))
 	
 	def translation(self):
 		global translate

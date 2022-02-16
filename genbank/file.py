@@ -15,7 +15,7 @@ class File(dict):
 				temp.write(line)
 				if line.startswith(b'//'):
 					temp.seek(0)
-					locus = self.read(temp)
+					locus = self.parse_locus(temp)
 					self[locus.locus] = locus
 					temp.seek(0)
 					temp.truncate()
@@ -26,8 +26,12 @@ class File(dict):
 			for feature in locus.features(include=include):
 				yield feature
 
-	def read(self, fp):
-		locus = Locus()
+	def construct_locus(self):
+		'''this method allows for a Locus class to be modified through inheritance in other code '''
+		return Locus()
+
+	def parse_locus(self, fp):
+		locus = self.construct_locus()
 		in_features = False
 		current = None
 

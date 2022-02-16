@@ -17,6 +17,10 @@ class Locus(dict):
 		self.dna = dna.lower() if dna else ''
 		#self.locations = cd.Locations(self.dna)
 		self.translate = Translate()
+	
+	def construct_feature(self):
+		'''this method allows for a Feature class to be modified through inheritance in other code '''
+		return Feature
 
 	def seq(self, left, right):
 		return self.dna[left-1 : right]
@@ -49,10 +53,10 @@ class Locus(dict):
 			if not include or feature.type in include:
 				yield feature
 
-
 	def add_feature(self, key, strand, pairs):
 		"""Add a feature to the factory."""
-		feature = Feature(key, strand, pairs, self)
+		feature = self.construct_feature()
+		feature = feature(key, strand, pairs, self)
 		if feature not in self:
 			self[feature] = True
 		return feature
