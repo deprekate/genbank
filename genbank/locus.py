@@ -1,6 +1,8 @@
+import re
 import sys
 
 from genbank.feature import Feature
+from genbank.translate import Translate
 
 def rev_comp(dna):
 	a = 'acgtrykmbvdh'
@@ -10,41 +12,11 @@ def rev_comp(dna):
 
 
 class Locus(dict):
-	def __init__(self, locus, dna):
+	def __init__(self, locus=None, dna=''):
 		self.locus = locus
-		self.dna = dna.lower()
-		self.locations = cd.Locations(self.dna)
-		
-		seq = self.dna + rev_comp(self.dna)
-		length = len(seq)
-		self.p = dict()
-		self.p['a'] = seq.count('a') / length
-		self.p['c'] = seq.count('c') / length
-		self.p['g'] = seq.count('g') / length
-		self.p['t'] = seq.count('t') / length
-
-		self.wobble = {'gcc':'cgg', 'gct':'cgg', 'gca':'cgt', 'gcg':'cgt',
-					   'aga':'tct', 'agg':'tct', 'cga':'gct', 'cgg':'gct', 'cgt':'gcg', 'cgc':'gcg',
-					   'gac':'ctg', 'gat':'ctg', 
-					   'aac':'ttg', 'aat':'ttg',
-					   'tgc':'acg', 'tgt':'acg',
-					   'gaa':'ctt', 'gag':'ctt',
-					   'caa':'gtt', 'cag':'gtt',
-					   'gga':'cct', 'ggg':'cct', 'ggc':'ccg', 'ggt':'ccg',
-					   'cac':'gtg', 'cat':'gtg',
-					   'ata':'tat', 'atc':'tag', 'att': 'tag',
-					   'tta':'aat', 'ttg':'aat', 'cta':'gta', 'ctg':'gta', 'ctt':'gtg', 'ctc':'gtg',
-					   'aaa':'ttt', 'aag':'ttt',
-					   'atg':'tac',
-					   'ttc':'aag', 'ttt':'aag',
-					   'cca':'ggt', 'ccg':'ggt', 'cct':'ggg', 'ccc':'ggg',
-					   'agc':'tcg', 'agt':'tcg', 'tca':'atg', 'tcg':'atg', 'tcc':'agg', 'tct':'agg',
-					   'aca':'tgt', 'acg':'tgt', 'acc':'tgg', 'act':'tgg',
-					   'tgg':'acc',
-					   'tac':'atg', 'tat':'atg',
-					   'gta':'cat', 'gtg':'cat', 'gtc':'cag', 'gtt':'cag',
-					   'tag':'atc', 'taa':'att', 'tga':'act'
-					   }
+		self.dna = dna.lower() if dna else ''
+		#self.locations = cd.Locations(self.dna)
+		self.translate = Translate()
 
 	def seq(self, left, right):
 		return self.dna[left-1 : right]
@@ -54,7 +26,13 @@ class Locus(dict):
 
 	def pcodon(self, codon):
 		codon = codon.lower()
-		return self.p[codon[0]] * self.p[codon[1]] * self.p[codon[2]]
+		seq = self.dna + rev_comp(self.dna)
+		p = dict()
+		p['a'] = seq.count('a') / len(seq)
+		p['c'] = seq.count('c') / len(seq)
+		p['g'] = seq.count('g') / len(seq)
+		p['t'] = seq.count('t') / len(seq)
+		return p[codon[0]] * p[codon[1]] * p[codon[2]]
 
 	def rbs(self):
 		for feature in self:
@@ -71,11 +49,28 @@ class Locus(dict):
 			if not include or feature.type in include:
 				yield feature
 
+
 	def add_feature(self, key, strand, pairs):
 		"""Add a feature to the factory."""
 		feature = Feature(key, strand, pairs, self)
 		if feature not in self:
 			self[feature] = True
+		return feature
+
+	def read_feature(self, line):
+		"""Add a feature to the factory."""
+		key = line.split()[0]
+		partial  = 'left' if '<' in line else ('right' if '>' in line else False)
+		strand = -1 if 'complement' in line else 1
+		#pairs = [pair.split('..') for pair in re.findall(r"<*\d+\.\.>*\d+", line)]
+		pairs = [map(int, pair.split('..')) for pair in re.findall(r"\d+\.\.\d+", line)]
+		# this is for weird malformed features
+		if ',1)' in line:
+			pairs.append(['1','1'])
+		# tuplize the pairs
+		pairs = tuple([tuple(pair) for pair in pairs])
+		feature = self.add_feature(key, strand, pairs)
+		feature.partial = partial
 		return feature
 
 	def gene_coverage(self):

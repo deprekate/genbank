@@ -78,7 +78,7 @@ class Feature():
 			for i in range(-((3 - len(self.dna) % 3) % 3), 0, 1):
 				yield i+1
 		for left,right in self.pairs:
-			#left,right = map(int, [ item.replace('<','').replace('>','') for item in pair ] )
+			#left,right = map(int, [ item.replace('<','').replace('>','') for item in self.pair ] )
 			for i in range(left,right):
 				yield i
 
