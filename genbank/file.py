@@ -54,7 +54,7 @@ class File(dict):
 					while line.count('"') == 1:
 						line += next(fp).decode('utf-8').strip()
 					tag,_,value = line[22:].partition('=')
-					current.tags[tag] = value.replace('"', '')
+					current.tags[tag] = value #.replace('"', '')
 			elif locus.dna != False:
 				locus.dna += line[10:].rstrip().replace(' ','').lower()
 		return locus

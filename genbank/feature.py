@@ -1,4 +1,5 @@
 from itertools import zip_longest, chain
+import textwrap
 
 
 def rev_comp(dna):
@@ -114,4 +115,29 @@ class Feature():
 		#aa[0] = 'M'
 		return "".join(aa)
 
+	def write(self, outfile):
+		outfile.write('     ')
+		outfile.write( self.type.ljust(16) )
+		if not self.strand > 0:
+			outfile.write('complement(')
+		# the pairs
+		if len(self.pairs) > 1:
+			outfile.write('join(')
+		pairs = []
+		for left, right in self.pairs:
+			left = max(1,left)
+			pair = str(left) + '..' + str(right+2)
+			pairs.append(pair)
+		outfile.write(','.join(pairs))
+		if len(self.pairs) > 1:
+			outfile.write(')')
+		# the pairs
+		if not self.strand > 0:
+			outfile.write(')')
+		outfile.write('\n')
+		for key,value in self.tags.items():
+			for line in textwrap.wrap( '/' + str(key) + '=' + str(value) , 58):
+				outfile.write('                     ')
+				outfile.write(line)
+				outfile.write('\n')
 
