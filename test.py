@@ -8,3 +8,4 @@ for name,locus in f.items():
 	print("-----Locus:", name, "-----")
 	for feature in locus:
 		print(feature)
+		print(feature.frame())

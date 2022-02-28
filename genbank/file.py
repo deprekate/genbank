@@ -25,6 +25,12 @@ class File(dict):
 		for locus in self.values():
 			for feature in locus.features(include=include):
 				yield feature
+	
+	def dna(self):
+		dna = ""
+		for locus in self.values():
+			dna += locus.dna
+		return dna
 
 	def construct_locus(self):
 		'''this method allows for a Locus class to be modified through inheritance in other code '''

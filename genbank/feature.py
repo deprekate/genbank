@@ -30,9 +30,9 @@ class Feature():
 		if self.type != 'CDS':
 			return 0
 		elif end == 'right':
-			return ((self.right()%3)+1) * self.strand
+			return (((self.right()-2)%3)+1) * self.strand
 		elif end == 'left':
-			return ((self.left()%3)+1) * self.strand
+			return (((self.left() -1)%3)+1) * self.strand
 
 	def hypothetical(self):
 		function = self.tags['product'] if 'product' in self.tags else ''
