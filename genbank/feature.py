@@ -30,7 +30,7 @@ class Feature():
 		if self.type != 'CDS':
 			return 0
 		elif end == 'right':
-			return (((self.right()-2)%3)+1) * self.strand
+			return (((self.right()-3)%3)+1) * self.strand
 		elif end == 'left':
 			return (((self.left() -1)%3)+1) * self.strand
 
@@ -125,8 +125,7 @@ class Feature():
 			outfile.write('join(')
 		pairs = []
 		for left, right in self.pairs:
-			left = max(1,left)
-			pair = str(left) + '..' + str(right+2)
+			pair = str(left) + '..' + str(right)
 			pairs.append(pair)
 		outfile.write(','.join(pairs))
 		if len(self.pairs) > 1:

@@ -1,6 +1,9 @@
 import re
 import sys
 
+from genbank.codons import Last
+from genbank.codons import Next
+from genbank.codons import Codons
 from genbank.feature import Feature
 from genbank.translate import Translate
 
@@ -14,8 +17,8 @@ def rev_comp(dna):
 class Locus(dict):
 	def __init__(self, locus=None, dna=''):
 		self.locus = locus
-		self.dna = dna.lower() if dna else ''
-		#self.locations = cd.Locations(self.dna)
+		self.dna = dna.lower()
+		#self.codons = dict()
 		self.translate = Translate()
 	
 	def construct_feature(self):
@@ -107,5 +110,32 @@ class Locus(dict):
 		outfile.write('//')
 		outfile.write('\n')
 
+	def next(self, n, strand, codon):
+		if strand < +1:
+			codon = rev_comp(codon)
+		for i in range(n, self.length(), 3):
+			if codon == self.dna[i:i+3]:
+				return i
+		return None
 
-			
+	def last(self, n, strand, codon):
+		if strand < +1:
+			codon = rev_comp(codon)
+		for i in range(n, 0, -3):
+			if codon == self.dna[i:i+3]:
+				return i
+		return None
+
+	def nearest(self, n, strand, codon):
+		_last = self.last(n,strand,codon)
+		_next = self.next(n,strand,codon)
+		if n - _last < _next - n:
+			return _last
+		else:
+			return _next
+
+	def distance(self, n, strand, codon):
+		nearest = self.nearest(n, strand, codon)
+		return n - nearest if nearest < n else nearest - n
+
+

@@ -8,4 +8,6 @@ for name,locus in f.items():
 	print("-----Locus:", name, "-----")
 	for feature in locus:
 		print(feature)
-		print(feature.frame())
+
+	print(locus.nearest(59, -1, 'aaa'))
+	print(locus.distance(59, -1, 'aaa'))
