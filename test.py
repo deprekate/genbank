@@ -9,5 +9,8 @@ for name,locus in f.items():
 	for feature in locus:
 		print(feature)
 
-	print(locus.nearest(59, -1, 'aaa'))
-	print(locus.distance(59, -1, 'aaa'))
+	stops = ('taa','tag','tga')
+	print(locus.last(59, +1, stops))
+	print(locus.last(59, +1, 'taa'))
+
+

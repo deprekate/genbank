@@ -110,32 +110,36 @@ class Locus(dict):
 		outfile.write('//')
 		outfile.write('\n')
 
-	def next(self, n, strand, codon):
+	def next(self, n, strand, codons):
+		if isinstance(codons, str):
+			codons = [codons]
 		if strand < +1:
-			codon = rev_comp(codon)
+			codons = rev_comp(codons)
 		for i in range(n, self.length(), 3):
-			if codon == self.dna[i:i+3]:
+			if self.dna[i:i+3] in (codons):
 				return i
 		return None
 
-	def last(self, n, strand, codon):
+	def last(self, n, strand, codons):
+		if isinstance(codons, str):
+			codons = [codons]
 		if strand < +1:
-			codon = rev_comp(codon)
+			codons = map(rev_comp, codons)
 		for i in range(n, 0, -3):
-			if codon == self.dna[i:i+3]:
+			if self.dna[i:i+3] in codons:
 				return i
 		return None
 
-	def nearest(self, n, strand, codon):
-		_last = self.last(n,strand,codon)
-		_next = self.next(n,strand,codon)
+	def nearest(self, n, strand, codons):
+		_last = self.last(n,strand,codons)
+		_next = self.next(n,strand,codons)
 		if n - _last < _next - n:
 			return _last
 		else:
 			return _next
 
-	def distance(self, n, strand, codon):
-		nearest = self.nearest(n, strand, codon)
+	def distance(self, n, strand, codons):
+		nearest = self.nearest(n, strand, codons)
 		return n - nearest if nearest < n else nearest - n
 
 
