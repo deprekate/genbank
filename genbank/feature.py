@@ -44,11 +44,25 @@ class Feature():
 		else:
 			return False
 
+	def partial(self):
+		partial_left  = any(['<' in item for pair in self.pairs for item in pair])
+		partial_right = any(['>' in item for pair in self.pairs for item in pair])
+		if partial_left and partial_right:
+			# this really shouldnt even happen, maybe raise an error?
+			return 'both'
+		elif partial_left:
+			return 'left'
+		elif partial_right:
+			return 'right'
+		else:
+			return None
+
+
 	def left(self):
-		return int(self.pairs[0][0])
+		return int(self.pairs[0][0].replace('<','').replace('>','') )
 	
 	def right(self):
-		return int(self.pairs[-1][-1])
+		return int(self.pairs[-1][-1].replace('<','').replace('>','') )
 
 	def __str__(self):
 		"""Compute the string representation of the feature."""
@@ -124,9 +138,10 @@ class Feature():
 		if len(self.pairs) > 1:
 			outfile.write('join(')
 		pairs = []
-		for left, right in self.pairs:
-			pair = str(left) + '..' + str(right)
-			pairs.append(pair)
+		#for left, *right in self.pairs:
+		for pair in self.pairs:
+			#pair = left + '..' + str(right[0]) if right else str(left)
+			pairs.append("..".join(pair))
 		outfile.write(','.join(pairs))
 		if len(self.pairs) > 1:
 			outfile.write(')')

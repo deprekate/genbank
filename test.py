@@ -3,7 +3,8 @@ import sys
 from genbank.file import File
 
 f = File(sys.argv[1])
-print(f)
+f.write()
+'''
 for name,locus in f.items():
 	print("-----Locus:", name, "-----")
 	for feature in locus:
@@ -12,5 +13,5 @@ for name,locus in f.items():
 	stops = ('taa','tag','tga')
 	print(locus.last(59, +1, stops))
 	print(locus.last(59, +1, 'taa'))
-
+'''
 

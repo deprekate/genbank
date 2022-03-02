@@ -16,6 +16,7 @@ def rev_comp(dna):
 
 class Locus(dict):
 	def __init__(self, locus=None, dna=''):
+		self.order = []
 		self.locus = locus
 		self.dna = dna.lower()
 		#self.codons = dict()
@@ -61,23 +62,23 @@ class Locus(dict):
 		feature = self.construct_feature()
 		feature = feature(key, strand, pairs, self)
 		if feature not in self:
-			self[feature] = True
+			self[feature] = len(self)
 		return feature
 
 	def read_feature(self, line):
 		"""Add a feature to the factory."""
 		key = line.split()[0]
-		partial  = 'left' if '<' in line else ('right' if '>' in line else False)
+		#partial  = 'left' if '<' in line else ('right' if '>' in line else False)
 		strand = -1 if 'complement' in line else 1
 		#pairs = [pair.split('..') for pair in re.findall(r"<*\d+\.\.>*\d+", line)]
-		pairs = [map(int, pair.split('..')) for pair in re.findall(r"\d+\.\.\d+", line)]
+		#pairs = [map(int, pair.split('..')) for pair in re.findall(r"<?\d+\.{0,2}>?\d+", line.replace('<','').replace('>','') )]
+		pairs = [ pair.split('..') for pair in re.findall(r"<?\d+\.{0,2}>?\d*", line) ]
 		# this is for weird malformed features
-		if ',1)' in line:
-			pairs.append(['1','1'])
+		#if ',1)' in line:
+		#	pairs.append(['1','1'])
 		# tuplize the pairs
 		pairs = tuple([tuple(pair) for pair in pairs])
 		feature = self.add_feature(key, strand, pairs)
-		feature.partial = partial
 		return feature
 
 	def gene_coverage(self):
@@ -93,7 +94,7 @@ class Locus(dict):
 			tbases += len(dna)
 		return 3 * cbases / tbases
 
-	def write(self, outfile):
+	def write(self, outfile=sys.stdout):
 		outfile.write('LOCUS       ')
 		outfile.write(self.locus)
 		outfile.write(str(len(self.dna)).rjust(10))
@@ -101,11 +102,10 @@ class Locus(dict):
 		outfile.write('\n')
 		outfile.write('DEFINITION  ' + self.locus + '\n')
 		outfile.write('FEATURES             Location/Qualifiers\n')
-		outfile.write('     source          1..')
-		outfile.write(str(len(self.dna)))
-		outfile.write('\n')
-
-		for feature in sorted(self):
+		#outfile.write('     source          1..')
+		#outfile.write(str(len(self.dna)))
+		#outfile.write('\n')
+		for feature in self:
 			feature.write(outfile)
 		outfile.write('//')
 		outfile.write('\n')

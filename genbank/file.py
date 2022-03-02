@@ -65,3 +65,7 @@ class File(dict):
 				locus.dna += line[10:].rstrip().replace(' ','').lower()
 		return locus
 
+	def write(self):
+		for locus in self:
+			self[locus].write()
+
