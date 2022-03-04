@@ -110,22 +110,23 @@ class Locus(dict):
 		outfile.write('//')
 		outfile.write('\n')
 
-	def next(self, n, strand, codons):
-		if isinstance(codons, str):
-			codons = [codons]
-		if strand < +1:
-			codons = rev_comp(codons)
-		for i in range(n, self.length(), 3):
-			if self.dna[i:i+3] in (codons):
-				return i
-		return None
-
 	def last(self, n, strand, codons):
 		if isinstance(codons, str):
 			codons = [codons]
 		if strand < +1:
-			codons = map(rev_comp, codons)
+			codons = list(map(rev_comp, codons))
 		for i in range(n, 0, -3):
+			if self.dna[i:i+3] in codons:
+				return i
+		return None
+
+	def next(self, n, strand, codons):
+		if isinstance(codons, str):
+			codons = [codons]
+		if strand < +1:
+			codons = list(map(rev_comp, codons))
+		for i in range(n, self.length(), 3):
+			#print(list(codons), self.dna[i:i+3])
 			if self.dna[i:i+3] in codons:
 				return i
 		return None

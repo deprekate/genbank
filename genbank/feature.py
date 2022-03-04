@@ -57,12 +57,21 @@ class Feature():
 		else:
 			return None
 
+	def type_is(self, _type):
+		if self.type == _type:
+			return True
+		else:
+			return False
 
 	def left(self):
 		return int(self.pairs[0][0].replace('<','').replace('>','') )
 	
 	def right(self):
 		return int(self.pairs[-1][-1].replace('<','').replace('>','') )
+
+	def __iter__(self):
+		for left,right in self.pairs:
+			yield int(left.replace('<','')) , int(right.replace('>',''))
 
 	def __str__(self):
 		"""Compute the string representation of the feature."""
@@ -92,7 +101,8 @@ class Feature():
 		if full and self.partial == 'left': 
 			for i in range(-((3 - len(self.dna) % 3) % 3), 0, 1):
 				yield i+1
-		for left,right in self.pairs:
+		for left,right in self:
+			print(left,right)
 			#left,right = map(int, [ item.replace('<','').replace('>','') for item in self.pair ] )
 			for i in range(left,right+1):
 				yield i
