@@ -1,6 +1,6 @@
 
 all:
-	python3 setup.py install --user
+	pip install ../genbank/ --user
 
 clean:
 	rm -fr build/
