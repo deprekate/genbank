@@ -50,6 +50,10 @@ class File(dict):
 				locus.dna = ''
 			elif line.startswith('FEATURES'):
 				in_features = True
+			elif in_features and not line.startswith(" "):
+				key,value = line.split()
+				#setattr(self, key, value)
+				in_features = False
 			elif in_features:
 				line = line.rstrip()
 				if not line.startswith(' ' * 21):
