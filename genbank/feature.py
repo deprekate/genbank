@@ -1,5 +1,6 @@
 from itertools import zip_longest, chain
 import textwrap
+import copy
 
 
 def rev_comp(dna):
@@ -120,7 +121,12 @@ class Feature():
 				yield ''.join([self.locus.dna[loc-1] if loc else '' for loc in locations])
 			else:
 				yield rev_comp(''.join([self.locus.dna[loc-1] if loc else '' for loc in locations]))
-	
+
+	def split(self):
+		a = copy.copy(self)
+		b = copy.copy(self)
+		return a,b
+
 	def translation(self):
 		global translate
 		aa = []
