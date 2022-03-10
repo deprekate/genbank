@@ -16,7 +16,7 @@ class File(dict):
 				if line.startswith(b'//'):
 					temp.seek(0)
 					locus = self.parse_locus(temp)
-					self[locus.locus] = locus
+					self[locus.name] = locus
 					temp.seek(0)
 					temp.truncate()
 		temp.close()
@@ -44,7 +44,7 @@ class File(dict):
 		for line in fp:
 			line = line.decode("utf-8")
 			if line.startswith('LOCUS'):
-				locus.locus = line.split()[1]
+				locus.name = line.split()[1]
 			elif line.startswith('ORIGIN'):
 				in_features = False
 				locus.dna = ''
@@ -70,6 +70,6 @@ class File(dict):
 		return locus
 
 	def write(self):
-		for locus in self:
-			self[locus].write()
+		for name in self:
+			self[name].write()
 

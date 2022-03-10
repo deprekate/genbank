@@ -77,7 +77,7 @@ class Feature():
 	def __str__(self):
 		"""Compute the string representation of the feature."""
 		return "%s\t%s\t%s\t%s" % (
-				repr(self.locus.locus),
+				repr(self.locus.name),
 				repr(self.type),
 				repr(self.pairs),
 				repr(self.tags))
@@ -86,7 +86,7 @@ class Feature():
 		"""Compute the string representation of the feature."""
 		return "%s(%s, %s, %s, %s)" % (
 				self.__class__.__name__,
-				repr(self.locus),
+				repr(self.locus.name),
 				repr(self.type),
 				repr(self.pairs),
 				repr(self.tags))
@@ -103,7 +103,6 @@ class Feature():
 			for i in range(-((3 - len(self.dna) % 3) % 3), 0, 1):
 				yield i+1
 		for left,right in self:
-			print(left,right)
 			#left,right = map(int, [ item.replace('<','').replace('>','') for item in self.pair ] )
 			for i in range(left,right+1):
 				yield i

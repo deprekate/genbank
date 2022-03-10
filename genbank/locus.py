@@ -1,5 +1,6 @@
 import re
 import sys
+import textwrap
 
 from genbank.codons import Last
 from genbank.codons import Next
@@ -15,9 +16,8 @@ def rev_comp(dna):
 
 
 class Locus(dict):
-	def __init__(self, locus=None, dna=''):
-		self.order = []
-		self.locus = locus
+	def __init__(self, name=None, dna=''):
+		self.name = name
 		self.dna = dna.lower()
 		#self.codons = dict()
 		self.translate = Translate()
@@ -31,6 +31,15 @@ class Locus(dict):
 
 	def length(self):
 		return len(self.dna)
+
+	def gc_content(self):
+		if not hasattr(self, "gc"):
+			a = self.dna.count('a')
+			c = self.dna.count('c')
+			g = self.dna.count('g')
+			t = self.dna.count('t')
+			self.gc = (c+g) / (a+c+g+t)
+		return self.gc
 
 	def pcodon(self, codon):
 		codon = codon.lower()
@@ -96,17 +105,31 @@ class Locus(dict):
 
 	def write(self, outfile=sys.stdout):
 		outfile.write('LOCUS       ')
-		outfile.write(self.locus)
+		outfile.write(self.name)
 		outfile.write(str(len(self.dna)).rjust(10))
 		outfile.write(' bp    DNA             UNK')
 		outfile.write('\n')
-		outfile.write('DEFINITION  ' + self.locus + '\n')
+		outfile.write('DEFINITION  ' + self.name + '\n')
 		outfile.write('FEATURES             Location/Qualifiers\n')
 		#outfile.write('     source          1..')
 		#outfile.write(str(len(self.dna)))
 		#outfile.write('\n')
 		for feature in self:
 			feature.write(outfile)
+		outfile.write('ORIGIN')
+		i = 0
+		dna = textwrap.wrap(self.dna, 10)
+		for block in dna:
+			if(i%60 == 0):
+				outfile.write('\n')
+				outfile.write(str(i+1).rjust(9))
+				outfile.write(' ')
+				outfile.write(block.lower())
+			else:
+				outfile.write(' ')
+				outfile.write(block.lower())
+			i += 10
+		outfile.write('\n')
 		outfile.write('//')
 		outfile.write('\n')
 
