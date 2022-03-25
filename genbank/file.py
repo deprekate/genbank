@@ -23,7 +23,7 @@ class File(dict):
 					temp.truncate()
 		temp.close()
 	
-	def __init_subclass__(cls, /, locus, **kwargs):
+	def __init_subclass__(cls, locus, **kwargs):
 		'''this method allows for a Locus class to be modified through inheritance in other code '''
 		super().__init_subclass__(**kwargs)
 		cls.locus = locus

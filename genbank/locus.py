@@ -24,7 +24,7 @@ class Locus(dict):
 		#self.codons = dict()
 		self.translate = Translate()
 
-	def __init_subclass__(cls, /, feature=Feature, **kwargs):
+	def __init_subclass__(cls, feature=Feature, **kwargs):
 		'''this method allows for a Feature class to be modified through inheritance in other code '''
 		super().__init_subclass__(**kwargs)
 		cls.feature = feature
