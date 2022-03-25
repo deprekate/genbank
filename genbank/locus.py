@@ -17,28 +17,40 @@ def rev_comp(dna):
 
 class Locus(dict):
 	def __init__(self, name=None, dna=''):
+		if not hasattr(self, 'feature'):
+			self.feature = Feature
 		self.name = name
 		self.dna = dna.lower()
 		#self.codons = dict()
 		self.translate = Translate()
-	
-	def construct_feature(self):
-		'''this method allows for a Feature class to be modified through inheritance in other code '''
-		return Feature
 
-	def seq(self, left, right):
-		return self.dna[left-1 : right]
+	def __init_subclass__(cls, /, feature=Feature, **kwargs):
+		'''this method allows for a Feature class to be modified through inheritance in other code '''
+		super().__init_subclass__(**kwargs)
+		cls.feature = feature
+
+	def seq(self, left, right, strand=1):
+		if strand > 0:
+			return self.dna[left-1 : right]
+		else:
+			return rev_comp(self.dna[left-1 : right])
 
 	def length(self):
 		return len(self.dna)
 
-	def gc_content(self):
-		if not hasattr(self, "gc"):
-			a = self.dna.count('a')
-			c = self.dna.count('c')
-			g = self.dna.count('g')
-			t = self.dna.count('t')
-			self.gc = (c+g) / (a+c+g+t)
+	def gc_content(self, seq=None):
+		if seq is not None:
+			#a = seq.count('a') + seq.count('A')
+			c = seq.count('c') + seq.count('C')
+			g = seq.count('g') + seq.count('G')
+			#t = seq.count('t') + seq.count('T')
+			return (c+g) / len(seq) #(a+c+g+t)
+		elif not hasattr(self, "gc"):
+			#a = self.dna.count('a') + self.dna.count('A')
+			c = self.dna.count('c') + self.dna.count('C')
+			g = self.dna.count('g') + self.dna.count('G')
+			#t = self.dna.count('t') + self.dna.count('T')
+			self.gc = (c+g) / len(self.dna) # (a+c+g+t)
 		return self.gc
 
 	def pcodon(self, codon):
@@ -68,7 +80,7 @@ class Locus(dict):
 
 	def add_feature(self, key, strand, pairs):
 		"""Add a feature to the factory."""
-		feature = self.construct_feature()
+		feature = self.feature
 		feature = feature(key, strand, pairs, self)
 		if feature not in self:
 			self[feature] = len(self)
@@ -79,12 +91,12 @@ class Locus(dict):
 		key = line.split()[0]
 		#partial  = 'left' if '<' in line else ('right' if '>' in line else False)
 		strand = -1 if 'complement' in line else 1
+		# this is for weird malformed features
+		if ',1)' in line:
+			line = line.replace( ",1)" , ",1..1)" )
 		#pairs = [pair.split('..') for pair in re.findall(r"<*\d+\.\.>*\d+", line)]
 		#pairs = [map(int, pair.split('..')) for pair in re.findall(r"<?\d+\.{0,2}>?\d+", line.replace('<','').replace('>','') )]
 		pairs = [ pair.split('..') for pair in re.findall(r"<?\d+\.{0,2}>?\d*", line) ]
-		# this is for weird malformed features
-		#if ',1)' in line:
-		#	pairs.append(['1','1'])
 		# tuplize the pairs
 		pairs = tuple([tuple(pair) for pair in pairs])
 		feature = self.add_feature(key, strand, pairs)
@@ -104,14 +116,14 @@ class Locus(dict):
 		return 3 * cbases / tbases
 
 	def write(self, outfile=sys.stdout):
-		outfile.write('LOCUS       ')
+		outfile.write('LOCUS	   ')
 		outfile.write(self.name)
 		outfile.write(str(len(self.dna)).rjust(10))
-		outfile.write(' bp    DNA             UNK')
+		outfile.write(' bp	DNA			 UNK')
 		outfile.write('\n')
 		outfile.write('DEFINITION  ' + self.name + '\n')
-		outfile.write('FEATURES             Location/Qualifiers\n')
-		#outfile.write('     source          1..')
+		outfile.write('FEATURES			 Location/Qualifiers\n')
+		#outfile.write('	 source		  1..')
 		#outfile.write(str(len(self.dna)))
 		#outfile.write('\n')
 		for feature in self:
@@ -166,4 +178,21 @@ class Locus(dict):
 		nearest = self.nearest(n, strand, codons)
 		return n - nearest if nearest < n else nearest - n
 
+	def codon_rarity(self, codon):
+		if not hasattr(self, 'rarity'):
+			self.rarity = {a+b+c : 1 for a in 'acgt' for b in 'acgt' for c in 'acgt'}
+			for feature in self:
+				if feature.type == 'CDS':
+					for _codon in feature.codons():
+						if _codon in self.rarity:
+							self.rarity[_codon] += 1
+		total = sum(self.rarity.values())
+		self.rarity = {codon:self.rarity[codon]/total for codon in self.rarity}
+		return round(self.rarity[codon], 5)
+
+		
+
+
+
+		
 

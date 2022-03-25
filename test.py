@@ -15,6 +15,5 @@ for name,locus in f.items():
 		'''
 		#print(feature.locus.gc_content())
 	stops = ['taa','tag','tga']
-	print(locus.last(59, +1, stops))
-	print(locus.last(59, +1, 'taa'))
+	#print(locus.last(59, +1, stops))
 

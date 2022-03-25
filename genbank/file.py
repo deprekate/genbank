@@ -6,6 +6,8 @@ from genbank.locus import Locus
 
 class File(dict):
 	def __init__(self, filename=None):
+		if not hasattr(self, 'locus'):
+			self.locus = Locus()
 		''' use tempfiles since using next inside a for loop is easier'''
 		temp = tempfile.TemporaryFile()
 		
@@ -20,6 +22,11 @@ class File(dict):
 					temp.seek(0)
 					temp.truncate()
 		temp.close()
+	
+	def __init_subclass__(cls, /, locus, **kwargs):
+		'''this method allows for a Locus class to be modified through inheritance in other code '''
+		super().__init_subclass__(**kwargs)
+		cls.locus = locus
 
 	def features(self, include=None, exclude=None):
 		for locus in self.values():
@@ -32,12 +39,8 @@ class File(dict):
 			dna += locus.dna
 		return dna
 
-	def construct_locus(self):
-		'''this method allows for a Locus class to be modified through inheritance in other code '''
-		return Locus()
-
 	def parse_locus(self, fp):
-		locus = self.construct_locus()
+		locus = self.locus
 		in_features = False
 		current = None
 
@@ -51,7 +54,7 @@ class File(dict):
 			elif line.startswith('FEATURES'):
 				in_features = True
 			elif in_features and not line.startswith(" "):
-				key,value = line.split()
+				key,*value = line.split()
 				#setattr(self, key, value)
 				in_features = False
 			elif in_features:

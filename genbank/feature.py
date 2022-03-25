@@ -27,6 +27,9 @@ class Feature():
 		self.dna = ''
 		self.partial = False
 
+	def seq(self):
+		return self.locus.seq(self.left(), self.right())
+
 	def frame(self, end):
 		if self.type != 'CDS':
 			return 0
@@ -58,7 +61,7 @@ class Feature():
 		else:
 			return None
 
-	def type_is(self, _type):
+	def is_type(self, _type):
 		if self.type == _type:
 			return True
 		else:
@@ -69,6 +72,11 @@ class Feature():
 	
 	def right(self):
 		return int(self.pairs[-1][-1].replace('<','').replace('>','') )
+
+	def is_joined(self):
+		if len(self.pairs) > 1:
+			return True
+		return False
 
 	def __iter__(self):
 		for left,right in self.pairs:
@@ -96,7 +104,10 @@ class Feature():
 	#	return self.pairs == other.pairs()
 
 	def __lt__(self, other):
-		return self.left() < other.left()
+		if self.left() == other.left():
+			return self.right() < other.right()
+		else:
+			return self.left() < other.left()
 
 	def base_locations(self, full=False):
 		if full and self.partial == 'left': 
@@ -147,7 +158,7 @@ class Feature():
 	def write(self, outfile):
 		outfile.write('     ')
 		outfile.write( self.type.ljust(16) )
-		if not self.strand > 0:
+		if self.strand < 0:
 			outfile.write('complement(')
 		# the pairs
 		if len(self.pairs) > 1:
