@@ -29,6 +29,19 @@ class Feature():
 
 	def seq(self):
 		return self.locus.seq(self.left(), self.right())
+		
+	def length(self):
+		return len(self.seq())
+
+	def fna(self):
+		return self.header() + self.seq() + "\n"
+	def faa(self):
+		return self.header() + self.translation() + "\n"
+	def header(self):
+		header = ">" + self.locus.name + "_CDS_[" + self.locations() + "]"
+		for tag in self.tags:
+			header += " [" + tag + "=" + self.tags[tag] +"]"
+		return header + "\n"
 
 	def frame(self, end):
 		if self.type != 'CDS':
@@ -109,6 +122,19 @@ class Feature():
 		else:
 			return self.left() < other.left()
 
+	def locations(self):
+		pairs = []
+		#for left, *right in self.pairs:
+		for pair in self.pairs:
+			pairs.append("..".join(pair))
+		location = ','.join(pairs)
+		if len(pairs) > 1:
+			location = 'join(' + location + ')'
+		if self.strand < 0:
+			location = 'complement(' + location + ')'
+		return location
+
+
 	def base_locations(self, full=False):
 		if full and self.partial == 'left': 
 			for i in range(-((3 - len(self.dna) % 3) % 3), 0, 1):
@@ -138,20 +164,23 @@ class Feature():
 		return a,b
 
 	def translation(self):
-		global translate
 		aa = []
 		codon = ''
 		first = 0 if not self.partial else len(self.dna) % 3
-		for i in range(first, len(self.dna), 3):
-			codon = self.dna[ i : i+3 ]
+		dna = self.seq()
+		for i in range(first, self.length(), 3):
+			codon = dna[ i : i+3 ]
 			if self.strand > 0:
-				aa.append(translate.codon(codon))
+				aa.append(self.locus.translate.codon(codon))
 			else:
-				aa.append(translate.codon(rev_comp(codon)))
+				aa.append(self.locus.translate.codon(rev_comp(codon)))
 		if self.strand < 0:
 			aa = aa[::-1]
-		if aa[-1] in '#*+':
-			aa.pop()
+		# keeping the stop codon character adds 'information' as does which of
+		# the stop codons it is. It is the better way to write the fasta
+		#if aa[-1] in '#*+':
+		#	aa.pop()
+		# keeping the first amino acid also adds 'information' to the fasta
 		#aa[0] = 'M'
 		return "".join(aa)
 

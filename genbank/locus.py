@@ -29,7 +29,12 @@ class Locus(dict):
 		super().__init_subclass__(**kwargs)
 		cls.feature = feature
 
-	def seq(self, left, right, strand=1):
+	def fasta(self):
+		return ">" + self.name + "\n" + self.seq() + "\n"
+
+	def seq(self, left=1, right=None, strand=1):
+		if right is None:
+			right = self.length()
 		if strand > 0:
 			return self.dna[left-1 : right]
 		else:
