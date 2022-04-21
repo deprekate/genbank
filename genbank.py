@@ -35,9 +35,6 @@ if __name__ == "__main__":
 
 	genbank = File(args.infile)
 
-	print(genbank)
-	exit()
-	
 	if args.slice:
 		left,right = map(int, args.slice.split('..'))
 		#print(genbank.current.seq(left, right))
