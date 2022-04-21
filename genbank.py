@@ -34,6 +34,9 @@ if __name__ == "__main__":
 	args = parser.parse_args()
 
 	genbank = File(args.infile)
+
+	print(genbank)
+	exit()
 	
 	if args.slice:
 		left,right = map(int, args.slice.split('..'))

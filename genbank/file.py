@@ -14,10 +14,9 @@ class File(dict):
 		
 		lib = gzip if filename.endswith(".gz") else io
 		with lib.open(filename, mode="rb") as fp:
-			#for line in chain(fp, [b'>']):
-			for line in fp:
+			for line in chain(fp, [b'>']):
 				# FASTA
-				if line.startswith(b'>') and temp.tell():
+				if line.startswith(b'>') and temp.tell() > 1:
 					locus = self.parse_locus(temp)
 					self[locus.name] = locus
 				temp.write(line)
@@ -47,6 +46,7 @@ class File(dict):
 		locus = self.locus()
 		in_features = False
 		current = None
+		offset = 10
 
 		fp.seek(0)
 		for line in fp:
@@ -56,6 +56,7 @@ class File(dict):
 			elif line.startswith('>'):
 				locus.name = line[1:].split()[0]
 				locus.dna = ''
+				offset = 0
 			elif line.startswith('ORIGIN'):
 				in_features = False
 				locus.dna = ''
@@ -77,7 +78,7 @@ class File(dict):
 					tag,_,value = line[22:].partition('=')
 					current.tags[tag] = value #.replace('"', '')
 			elif locus.dna != False:
-				locus.dna += line[10:].rstrip().replace(' ','').lower()
+				locus.dna += line[offset:].rstrip().replace(' ','').lower()
 		fp.seek(0)
 		fp.truncate()
 
