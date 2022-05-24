@@ -33,6 +33,8 @@ class Locus(dict):
 		return ">" + self.name + "\n" + self.seq() + "\n"
 
 	def seq(self, left=1, right=None, strand=1):
+		if left < 1:
+			left = 1
 		if right is None:
 			right = self.length()
 		if strand > 0:
