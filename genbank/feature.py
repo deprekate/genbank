@@ -16,14 +16,14 @@ def grouper(iterable, n, fillvalue=None):
 
 
 class Feature():
-	def __init__(self, type_, strand, pairs, locus):
+	def __init__(self, type_, strand, pairs, locus, tags=None):
 		#super().__init__(locus.locus, locus.dna)
 		self.type = type_
 		self.strand = strand
 		# tuplize the pairs
 		self.pairs = tuple([tuple(pair) for pair in pairs])
 		self.locus = locus
-		self.tags = dict()
+		self.tags = tags if tags else dict()
 		self.dna = ''
 		self.partial = False
 

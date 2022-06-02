@@ -123,14 +123,14 @@ class Locus(dict):
 		return 3 * cbases / tbases
 
 	def write(self, outfile=sys.stdout):
-		outfile.write('LOCUS	   ')
+		outfile.write('LOCUS       ')
 		outfile.write(self.name)
 		outfile.write(str(len(self.dna)).rjust(10))
-		outfile.write(' bp	DNA			 UNK')
+		outfile.write(' bp  DNA          UNK')
 		outfile.write('\n')
 		outfile.write('DEFINITION  ' + self.name + '\n')
-		outfile.write('FEATURES			 Location/Qualifiers\n')
-		#outfile.write('	 source		  1..')
+		outfile.write('FEATURES          Location/Qualifiers\n')
+		#outfile.write('     source       1..')
 		#outfile.write(str(len(self.dna)))
 		#outfile.write('\n')
 		for feature in self:
@@ -185,7 +185,7 @@ class Locus(dict):
 		nearest = self.nearest(n, strand, codons)
 		return n - nearest if nearest < n else nearest - n
 
-	def codon_rarity(self, codon):
+	def codon_rarity(self, codon=None):
 		if not hasattr(self, 'rarity'):
 			self.rarity = {a+b+c : 1 for a in 'acgt' for b in 'acgt' for c in 'acgt'}
 			for feature in self:
@@ -195,7 +195,10 @@ class Locus(dict):
 							self.rarity[_codon] += 1
 		total = sum(self.rarity.values())
 		self.rarity = {codon:self.rarity[codon]/total for codon in self.rarity}
-		return round(self.rarity[codon], 5)
+		if codon:
+			return round(self.rarity[codon], 5)
+		else:
+			return self.rarity
 
 		
 
