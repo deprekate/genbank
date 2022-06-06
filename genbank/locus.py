@@ -103,6 +103,7 @@ class Locus(dict):
 			line = line.replace( ",1)" , ",1..1)" )
 		#pairs = [pair.split('..') for pair in re.findall(r"<*\d+\.\.>*\d+", line)]
 		#pairs = [map(int, pair.split('..')) for pair in re.findall(r"<?\d+\.{0,2}>?\d+", line.replace('<','').replace('>','') )]
+		#pairs = [ pair.split('..') for pair in re.findall(r"<?\d+\.{0,2}>?[-0-9]*", line) ]
 		pairs = [ pair.split('..') for pair in re.findall(r"<?\d+\.{0,2}>?\d*", line) ]
 		# tuplize the pairs
 		pairs = tuple([tuple(pair) for pair in pairs])
@@ -195,8 +196,10 @@ class Locus(dict):
 							self.rarity[_codon] += 1
 		total = sum(self.rarity.values())
 		self.rarity = {codon:self.rarity[codon]/total for codon in self.rarity}
-		if codon:
+		if codon in self.rarity:
 			return round(self.rarity[codon], 5)
+		elif codon:
+			return None
 		else:
 			return self.rarity
 
