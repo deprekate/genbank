@@ -15,6 +15,13 @@ def rev_comp(dna):
 	return dna.translate(tab)[::-1]
 
 
+class Seq(str):
+	# this is just to capture negative string indices as zero
+	def __getitem__(self, key):
+		if isinstance(key, slice) and key.start < 0:
+			key = slice(0, key.stop, key.step)
+		return super().__getitem__(key)
+
 class Locus(dict):
 	def __init__(self, name=None, dna=''):
 		if not hasattr(self, 'feature'):
@@ -38,9 +45,9 @@ class Locus(dict):
 		if right is None:
 			right = self.length()
 		if strand > 0:
-			return self.dna[left-1 : right]
+			return Seq(self.dna[left-1 : right])
 		else:
-			return rev_comp(self.dna[left-1 : right])
+			return Seq(rev_comp(self.dna[left-1 : right]))
 
 	def length(self):
 		return len(self.dna)
