@@ -20,6 +20,8 @@ class Seq(str):
 	def __getitem__(self, key):
 		if isinstance(key, slice) and key.start < 0:
 			key = slice(0, key.stop, key.step)
+		elif isinstance(key, int) and key >= len(self):
+			return ''
 		return super().__getitem__(key)
 
 class Locus(dict):
