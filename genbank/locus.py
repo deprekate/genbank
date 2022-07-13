@@ -14,6 +14,10 @@ def rev_comp(dna):
 	tab = str.maketrans(a,b)
 	return dna.translate(tab)[::-1]
 
+def nint(s):
+	return int(s.replace('<','').replace('>',''))
+def minus(s,i):
+	return str(nint(s) - i)
 
 class Seq(str):
 	# this is just to capture negative string indices as zero
@@ -214,6 +218,16 @@ class Locus(dict):
 		else:
 			return self.rarity
 
+	def slice(self, left, right):
+		self.dna = self.seq(left,right)
+		for feature in list(self.keys()):
+			if feature.right() < left:
+				del self[feature]
+			elif feature.left() > right:
+				del self[feature]
+			else:
+				feature.pairs = tuple([tuple([minus(p1,left),str(min(self.length(), int(minus(p2,left))))]) for p1,p2 in feature.pairs])
+		return self
 		
 
 
