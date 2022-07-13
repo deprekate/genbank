@@ -51,4 +51,10 @@ if __name__ == "__main__":
 	elif args.format in ['fasta']:
 		for name,locus in genbank.items():
 			args.outfile.write( getattr(locus, args.format)() )
+	elif args.format == 'coverage':
+		for name,locus in genbank.items():
+			args.outfile.write( name )
+			args.outfile.write( '\t' )
+			args.outfile.write( str(locus.gene_coverage()) )
+			args.outfile.write( '\n' )
 
