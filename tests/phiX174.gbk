@@ -3,8 +3,6 @@ DEFINITION  phiX174
 FEATURES             Location/Qualifiers
      source          1..5386
      rep_origin      13..56
-     CDS             join(<1..21,23..50)
-     CDS             join(2..21,23..50)
      CDS             100..627
                      /gene="G"
      CDS             636..1622
