@@ -9,7 +9,7 @@ File > Read > Locus > Feature
 ```
 
 To use:
-```
+```python
 from genbank.file import File
 
 f = File('infile.gbk')
@@ -45,7 +45,7 @@ ORIGIN
 
 
 This package also allows you to perform various conversions on a given genome file:
-```
+```bash
 $ genbank.py tests/phiX174.gbk -f tabular
 'phiX174'	'CDS'	(('100', '627'),)	{'gene': '"G"'}	a
 'phiX174'	'CDS'	(('636', '1622'),)	{'gene': '"H"'}
