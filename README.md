@@ -20,9 +20,31 @@ for name,locus in f.items():
 ```
 
 
+You can also build a Locus object from the ground up:
+```
+from genbank.locus import Locus
+locus = Locus('test', 'actgactgatcgtagctagc')
+# then add a feature by parsing text of a genbank feature
+locus.read_feature('  CDS  1..10')
+# or add one by manually specifing the type,strand,and locations
+locus.add_feature('CDS',+1,[['10','20']])
+locus.write()
+```
+which gives:
+```
+LOCUS       test        20 bp  DNA          UNK
+DEFINITION  test
+FEATURES          Location/Qualifiers
+     CDS             1..10
+     CDS             10..20
+ORIGIN
+        1 actgactgat cgtagctagc
+//
+```
 
 
-This package also allows you to perform various operations on a given genome file:
+
+This package also allows you to perform various conversions on a given genome file:
 ```
 $ genbank.py tests/phiX174.gbk -f tabular
 'phiX174'	'CDS'	(('100', '627'),)	{'gene': '"G"'}	a
@@ -54,3 +76,6 @@ MFGAIAGGIASALAGGAMSKLFGGGQKAASGGIQGDVLATDNNTVGMGDAG
 >phiX174_CDS_[1659..3227] [gene="A"]
 ...
 ```
+
+
+
