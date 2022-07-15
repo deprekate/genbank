@@ -42,7 +42,7 @@ ORIGIN
 //
 ```
 
-
+---
 
 This package also allows you to perform various conversions on a given genome file:
 ```bash
