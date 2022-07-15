@@ -21,7 +21,7 @@ for name,locus in f.items():
 
 
 You can also build a Locus object from the ground up:
-```
+```python
 from genbank.locus import Locus
 locus = Locus('test', 'actgactgatcgtagctagc')
 # then add a feature by parsing text of a genbank feature
