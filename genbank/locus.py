@@ -109,6 +109,7 @@ class Locus(dict):
 	def read_feature(self, line):
 		"""Add a feature to the factory."""
 		key = line.split()[0]
+		val = line.split()[1]
 		#partial  = 'left' if '<' in line else ('right' if '>' in line else False)
 		strand = -1 if 'complement' in line else 1
 		# this is for weird malformed features
@@ -117,7 +118,7 @@ class Locus(dict):
 		#pairs = [pair.split('..') for pair in re.findall(r"<*\d+\.\.>*\d+", line)]
 		#pairs = [map(int, pair.split('..')) for pair in re.findall(r"<?\d+\.{0,2}>?\d+", line.replace('<','').replace('>','') )]
 		#pairs = [ pair.split('..') for pair in re.findall(r"<?\d+\.{0,2}>?[-0-9]*", line) ]
-		pairs = [ pair.split('..') for pair in re.findall(r"<?\d+\.{0,2}>?\d*", line) ]
+		pairs = [ pair.split('..') for pair in re.findall(r"<?\d+\.{0,2}>?\d*", val) ]
 		# tuplize the pairs
 		pairs = tuple([tuple(pair) for pair in pairs])
 		feature = self.add_feature(key, strand, pairs)
