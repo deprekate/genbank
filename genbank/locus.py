@@ -1,6 +1,7 @@
 import re
 import sys
 import textwrap
+from collections.abc import Sequence
 
 from genbank.codons import Last
 from genbank.codons import Next
@@ -16,8 +17,19 @@ def rev_comp(dna):
 
 def nint(s):
 	return int(s.replace('<','').replace('>',''))
-def minus(s,i):
-	return str(nint(s) - i)
+
+def rmap(func, items):
+	out = list()
+	for item in items:
+		if isinstance(item, Sequence) and not isinstance(item, str):
+			out.append(type(item)(rmap(func,item)))
+		else:
+			out.append(func(item))
+	return type(items)(out)
+
+def recursive_map(func, items):
+    return (recursive_map(func, x) if isinstance(x, tuple) else func(x) for x in items)
+
 
 class Seq(str):
 	# this is just to capture negative string indices as zero
@@ -227,7 +239,11 @@ class Locus(dict):
 			elif feature.left() > right:
 				del self[feature]
 			else:
-				feature.pairs = tuple([tuple([minus(p1,left),str(min(self.length(), int(minus(p2,left))))]) for p1,p2 in feature.pairs])
+				# whew there is a lot going on here
+				f0 = lambda x : int(x.replace('<','').replace('>',''))
+				f1 = lambda x : '<1' if f0(x) - left < 1 else ('>'+str(self.length()) if f0(x) - left > self.length() else f0(x) - left)
+				f2 = lambda x : str(f1(x))
+				feature.pairs = rmap(f2, feature.pairs)
 		return self
 		
 

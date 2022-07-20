@@ -29,14 +29,24 @@ if __name__ == "__main__":
 	parser = argparse.ArgumentParser(description='', formatter_class=RawTextHelpFormatter, usage=usage)
 	parser.add_argument('infile', type=is_valid_file, help='input file in genbank format')
 	parser.add_argument('-o', '--outfile', action="store", default=sys.stdout, type=argparse.FileType('w'), help='where to write output [stdout]')
-	parser.add_argument('-f', '--format', help='Output the features in the specified format', type=str, default='tabular', choices=['tabular','genbank','fasta', 'fna','faa', 'coverage'])
+	parser.add_argument('-f', '--format', help='Output the features in the specified format', type=str, default='tabular', choices=['tabular','genbank','fasta', 'fna','faa', 'coverage','rarity'])
 	parser.add_argument('-s', '--slice', help='', type=str, default=None)
 	args = parser.parse_args()
 
 	genbank = File(args.infile)
 
 	if args.slice:
-		left,right = map(int, args.slice.split('..'))
+		if '..' in args.slice:
+			left,right = map(int, args.slice.split('..'))
+			left = left-1
+		elif '-' in args.slice:
+			left,right = map(int, args.slice.split('-'))
+			right = right+1
+		elif ':' in args.slice:
+			left,right = map(int, args.slice.split(':'))
+		else:
+			left = int(args.slice)
+			right = left+1
 		for name,locus in genbank.items():
 			locus = locus.slice(left,right)
 	if args.format == 'tabular':
@@ -58,4 +68,12 @@ if __name__ == "__main__":
 			args.outfile.write( '\t' )
 			args.outfile.write( str(locus.gene_coverage()) )
 			args.outfile.write( '\n' )
+	elif args.format == 'rarity':
+		rarity = dict()
+		for name,locus in genbank.items():
+			for codon,freq in sorted(locus.codon_rarity().items(), key=lambda item: item[1]):
+				args.outfile.write(codon)
+				args.outfile.write('\t')
+				args.outfile.write(str(round(freq,5)))
+				args.outfile.write('\n')
 
