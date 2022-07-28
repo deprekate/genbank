@@ -26,17 +26,22 @@ class Feature():
 		self.tags = tags if tags else dict()
 		self.dna = ''
 		self.partial = False
-
-	def seq(self):
-		return self.locus.seq(self.left(), self.right())
-		
+	
 	def length(self):
 		return len(self.seq())
 
+	def seq(self):
+		seq = ''
+		for n in self.base_locations():
+			seq += self.locus.seq(n,n, self.strand)
+		return seq
+
 	def fna(self):
 		return self.header() + self.seq() + "\n"
+
 	def faa(self):
 		return self.header() + self.translation() + "\n"
+	
 	def header(self):
 		header = ">" + self.locus.name + "_CDS_[" + self.locations() + "]"
 		for tag in self.tags:

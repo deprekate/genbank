@@ -48,6 +48,7 @@ class Locus(dict):
 		self.dna = dna.lower()
 		#self.codons = dict()
 		self.translate = Translate()
+		self.strand = 1
 
 	def __init_subclass__(cls, feature=Feature, **kwargs):
 		'''this method allows for a Feature class to be modified through inheritance in other code '''
@@ -57,7 +58,9 @@ class Locus(dict):
 	def fasta(self):
 		return ">" + self.name + "\n" + self.seq() + "\n"
 
-	def seq(self, left=1, right=None, strand=1):
+	def seq(self, left=1, right=None, strand=None):
+		if strand is None:
+			strand = self.strand
 		if left < 1:
 			left = 1
 		if right is None:
@@ -232,6 +235,9 @@ class Locus(dict):
 			return self.rarity
 
 	def slice(self, left, right):
+		if left > right:
+			left,right = right+1,left+1
+			self.strand = -1
 		self.dna = self.seq(left,right)
 		for feature in list(self.keys()):
 			if feature.right() < left:

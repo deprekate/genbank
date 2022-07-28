@@ -53,6 +53,9 @@ class File(dict):
 			line = line.decode("utf-8")
 			if line.startswith('LOCUS'):
 				locus.name = line.split()[1]
+			elif line.startswith('KEYWORDS'):
+				# eventually add in more support for other fields
+				locus.keywords = line.split()[1:]
 			elif line.startswith('>'):
 				locus.name = line[1:].split()[0]
 				locus.dna = ''
@@ -79,6 +82,7 @@ class File(dict):
 					current.tags[tag] = value #.replace('"', '')
 			elif locus.dna != False:
 				locus.dna += line[offset:].rstrip().replace(' ','').lower()
+
 		fp.seek(0)
 		fp.truncate()
 
