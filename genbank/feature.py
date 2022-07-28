@@ -97,7 +97,11 @@ class Feature():
 		return False
 
 	def __iter__(self):
-		for left,right in self.pairs:
+		for left,*right in self.pairs:
+			if right:
+				right = right[0]
+			else:
+				right = left
 			yield int(left.replace('<','')) , int(right.replace('>',''))
 
 	def __str__(self):
