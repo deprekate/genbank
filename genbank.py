@@ -29,7 +29,7 @@ if __name__ == "__main__":
 	parser = argparse.ArgumentParser(description='', formatter_class=RawTextHelpFormatter, usage=usage)
 	parser.add_argument('infile', type=is_valid_file, help='input file in genbank format')
 	parser.add_argument('-o', '--outfile', action="store", default=sys.stdout, type=argparse.FileType('w'), help='where to write output [stdout]')
-	parser.add_argument('-f', '--format', help='Output the features in the specified format', type=str, default='tabular', choices=['tabular','genbank','fasta', 'fna','faa', 'coverage','rarity','bases'])
+	parser.add_argument('-f', '--format', help='Output the features in the specified format', type=str, default='tabular', choices=['tabular','genbank','fasta', 'fna','faa', 'coverage','rarity','bases','gc'])
 	parser.add_argument('-s', '--slice', help='', type=str, default=None)
 	args = parser.parse_args()
 
@@ -79,5 +79,11 @@ if __name__ == "__main__":
 	elif args.format == 'bases':
 		for name,locus in genbank.items():
 			args.outfile.write(locus.dna)
+			args.outfile.write('\n')
+	elif args.format == 'gc':
+		for name,locus in genbank.items():
+			args.outfile.write(locus.name)
+			args.outfile.write('\t')
+			args.outfile.write(str(locus.gc_content()))
 			args.outfile.write('\n')
 

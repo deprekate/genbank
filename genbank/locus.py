@@ -66,7 +66,7 @@ class Locus(dict):
 		if right is None:
 			right = self.length()
 		if strand > 0:
-			return Seq(self.dna[left-1 : right])
+			return Seq(         self.dna[left-1 : right])
 		else:
 			return Seq(rev_comp(self.dna[left-1 : right]))
 

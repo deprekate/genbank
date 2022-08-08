@@ -34,7 +34,10 @@ class Feature():
 		seq = ''
 		for n in self.base_locations():
 			seq += self.locus.seq(n,n, self.strand)
-		return seq
+		if self.strand > 0:
+			return seq
+		else:
+			return seq[::-1]
 
 	def fna(self):
 		return self.header() + self.seq() + "\n"
@@ -179,12 +182,9 @@ class Feature():
 		dna = self.seq()
 		for i in range(first, self.length(), 3):
 			codon = dna[ i : i+3 ]
-			if self.strand > 0:
-				aa.append(self.locus.translate.codon(codon))
-			else:
-				aa.append(self.locus.translate.codon(rev_comp(codon)))
-		if self.strand < 0:
-			aa = aa[::-1]
+			aa.append(self.locus.translate.codon(codon))
+		#if self.strand < 0:
+		#	aa = aa[::-1]
 		# keeping the stop codon character adds 'information' as does which of
 		# the stop codons it is. It is the better way to write the fasta
 		#if aa[-1] in '#*+':
