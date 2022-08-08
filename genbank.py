@@ -49,7 +49,9 @@ if __name__ == "__main__":
 			right = left+1
 		for name,locus in genbank.items():
 			locus = locus.slice(left,right)
-	if args.format == 'tabular':
+	if args.format == 'genbank':
+		genbank.write(args.outfile)	
+	elif args.format == 'tabular':
 		for feature in genbank.features(include=['CDS']):
 			args.outfile.write(str(feature))
 			args.outfile.write("\t")

@@ -1,4 +1,5 @@
 import io
+import sys
 import gzip
 import tempfile
 from itertools import chain as chain
@@ -88,7 +89,7 @@ class File(dict):
 
 		return locus
 
-	def write(self):
+	def write(self, outfile=sys.stdout):
 		for name in self:
-			self[name].write()
+			self[name].write(outfile)
 
