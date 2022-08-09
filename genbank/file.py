@@ -90,9 +90,6 @@ class File(dict):
 			elif line.startswith('//'):
 				break
 			elif in_origin: #locus.dna != False:
-				print(line)
-				print('DNA', locus.dna )
-				exit()
 				locus.dna += line[offset:].rstrip().replace(' ','').lower()
 
 		fp.seek(0)
