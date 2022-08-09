@@ -41,7 +41,7 @@ class Seq(str):
 		return super().__getitem__(key)
 
 class Locus(dict):
-	def __init__(self, name=None, dna=''):
+	def __init__(self, name='', dna=''):
 		if not hasattr(self, 'feature'):
 			self.feature = Feature
 		self.name = name
@@ -115,8 +115,8 @@ class Locus(dict):
 
 	def add_feature(self, key, strand, pairs):
 		"""Add a feature to the factory."""
-		feature = self.feature
-		feature = feature(key, strand, pairs, self)
+		#feature = self.feature
+		feature = self.feature(key, strand, pairs, self)
 		if feature not in self:
 			self[feature] = len(self)
 		return feature

@@ -32,6 +32,10 @@ class File(dict):
 		super().__init_subclass__(**kwargs)
 		cls.locus = locus
 
+	def __iter__(self):
+		# hopefully this doesnt break stuff
+		return iter(self.values())
+
 	def features(self, include=None, exclude=None):
 		for locus in self.values():
 			for feature in locus.features(include=include):
@@ -46,6 +50,7 @@ class File(dict):
 	def parse_locus(self, fp):
 		locus = self.locus()
 		in_features = False
+		in_origin   = False
 		current = None
 		offset = 10
 
@@ -63,6 +68,7 @@ class File(dict):
 				offset = 0
 			elif line.startswith('ORIGIN'):
 				in_features = False
+				in_origin = True
 				locus.dna = ''
 			elif line.startswith('FEATURES'):
 				in_features = True
@@ -81,7 +87,12 @@ class File(dict):
 						line += next(fp).decode('utf-8').strip()
 					tag,_,value = line[22:].partition('=')
 					current.tags[tag] = value #.replace('"', '')
-			elif locus.dna != False:
+			elif line.startswith('//'):
+				break
+			elif in_origin: #locus.dna != False:
+				print(line)
+				print('DNA', locus.dna )
+				exit()
 				locus.dna += line[offset:].rstrip().replace(' ','').lower()
 
 		fp.seek(0)
@@ -90,6 +101,6 @@ class File(dict):
 		return locus
 
 	def write(self, outfile=sys.stdout):
-		for name in self:
-			self[name].write(outfile)
+		for locus in self:
+			locus.write(outfile)
 
