@@ -46,7 +46,7 @@ class Feature():
 		return self.header() + self.translation() + "\n"
 	
 	def header(self):
-		header = ">" + self.locus.name + "_CDS_[" + self.locations() + "]"
+		header = ">" + self.locus.name() + "_CDS_[" + self.locations() + "]"
 		for tag in self.tags:
 			header += " [" + tag + "=" + self.tags[tag] +"]"
 		return header + "\n"
@@ -110,7 +110,7 @@ class Feature():
 	def __str__(self):
 		"""Compute the string representation of the feature."""
 		return "%s\t%s\t%s\t%s" % (
-				repr(self.locus.name),
+				repr(self.locus.name()),
 				repr(self.type),
 				repr(self.pairs),
 				repr(self.tags))
@@ -119,7 +119,7 @@ class Feature():
 		"""Compute the string representation of the feature."""
 		return "%s(%s, %s, %s, %s)" % (
 				self.__class__.__name__,
-				repr(self.locus.name),
+				repr(self.locus.name()),
 				repr(self.type),
 				repr(self.pairs),
 				repr(self.tags))

@@ -19,12 +19,12 @@ class File(dict):
 				# FASTA
 				if line.startswith(b'>') and temp.tell() > 1:
 					locus = self.parse_locus(temp)
-					self[locus.name] = locus
+					self[locus.name()] = locus
 				temp.write(line)
 				# GENBANK
 				if line.startswith(b'//'):
 					locus = self.parse_locus(temp)
-					self[locus.name] = locus
+					self[locus.name()] = locus
 		temp.close()
 	
 	def __init_subclass__(cls, locus, **kwargs):
@@ -49,34 +49,22 @@ class File(dict):
 
 	def parse_locus(self, fp):
 		locus = self.locus()
-		in_features = False
-		in_origin   = False
 		current = None
-		offset = 10
+		field = None
 
 		fp.seek(0)
 		for line in fp:
 			line = line.decode("utf-8")
-			if line.startswith('LOCUS'):
-				locus.name = line.split()[1]
-			elif line.startswith('KEYWORDS'):
-				# eventually add in more support for other fields
-				locus.keywords = line.split()[1:]
-			elif line.startswith('>'):
-				locus.name = line[1:].split()[0]
-				locus.dna = ''
-				offset = 0
-			elif line.startswith('ORIGIN'):
-				in_features = False
-				in_origin = True
-				locus.dna = ''
-			elif line.startswith('FEATURES'):
-				in_features = True
-			elif in_features and not line.startswith(" "):
-				key,*value = line.split()
-				#setattr(self, key, value)
-				in_features = False
-			elif in_features:
+			if not line.startswith(' '):
+				field,*value = line.split(maxsplit=1)
+				if line.startswith('>'):
+					setattr(locus, 'LOCUS', field[1:])
+					locus.dna = ''
+				elif line.startswith('//'):
+					break
+				else:
+					setattr(locus, field, ''.join(map(str,value)).rstrip())
+			elif field == 'FEATURES':
 				line = line.rstrip()
 				if not line.startswith(' ' * 21):
 					while line.endswith(','):
@@ -87,10 +75,18 @@ class File(dict):
 						line += next(fp).decode('utf-8').strip()
 					tag,_,value = line[22:].partition('=')
 					current.tags[tag] = value #.replace('"', '')
-			elif line.startswith('//'):
-				break
-			elif in_origin: #locus.dna != False:
-				locus.dna += line[offset:].rstrip().replace(' ','').lower()
+			elif field == 'ORIGIN':
+				if locus.LOCUS.startswith('>'):
+					locus.dna += line.rstrip().replace(' ','').lower()
+				else:
+					locus.dna += line.split(maxsplit=1)[1].rstrip().replace(' ','').lower()
+			else:
+				if not line.startswith('            '):
+					field,*value = line.split(maxsplit=1)
+					setattr(locus, field, ''.join(map(str,value)).rstrip())
+				else:
+					value = getattr(locus,field) + line[11:].rstrip()
+					setattr(locus,field,value)
 
 		fp.seek(0)
 		fp.truncate()

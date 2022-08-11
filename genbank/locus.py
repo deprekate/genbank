@@ -44,7 +44,8 @@ class Locus(dict):
 	def __init__(self, name='', dna=''):
 		if not hasattr(self, 'feature'):
 			self.feature = Feature
-		self.name = name
+		#self.name = name
+		self.LOCUS = name
 		self.dna = dna.lower()
 		#self.codons = dict()
 		self.translate = Translate()
@@ -54,6 +55,9 @@ class Locus(dict):
 		'''this method allows for a Feature class to be modified through inheritance in other code '''
 		super().__init_subclass__(**kwargs)
 		cls.feature = feature
+
+	def name(self):
+		return self.LOCUS.split(maxsplit=1)[0]
 
 	def fasta(self):
 		return ">" + self.name + "\n" + self.seq() + "\n"
