@@ -160,11 +160,12 @@ class Locus(dict):
 
 	def write(self, outfile=sys.stdout):
 		outfile.write('LOCUS       ')
-		outfile.write(self.name)
+		outfile.write(self.name() )
 		outfile.write(str(len(self.dna)).rjust(10))
 		outfile.write(' bp  DNA          UNK')
 		outfile.write('\n')
-		outfile.write('DEFINITION  ' + self.name + '\n')
+		if self.DEFINITION:
+			outfile.write('DEFINITION  ' + self.DEFINITION + '\n')
 		outfile.write('FEATURES          Location/Qualifiers\n')
 		#outfile.write('     source       1..')
 		#outfile.write(str(len(self.dna)))
