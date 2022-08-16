@@ -60,7 +60,7 @@ class Locus(dict):
 		return self.LOCUS.split(maxsplit=1)[0]
 
 	def fasta(self):
-		return ">" + self.name + "\n" + self.seq() + "\n"
+		return ">" + self.name() + "\n" + self.seq() + "\n"
 
 	def seq(self, left=1, right=None, strand=None):
 		if strand is None:
