@@ -57,7 +57,8 @@ class Locus(dict):
 		cls.feature = feature
 
 	def name(self):
-		return self.LOCUS.split(maxsplit=1)[0]
+		locus = self.LOCUS.split(maxsplit=1)[0] if self.LOCUS else None
+		return locus
 
 	def fasta(self):
 		return ">" + self.name() + "\n" + self.seq() + "\n"
@@ -149,7 +150,7 @@ class Locus(dict):
 		for locus in self.values():
 			dna = [False] * len(self.dna)
 			seen = dict()
-			for feature in self.features(include=['CDS']):
+			for feature in self.features(include=['CDS','tRNA']):
 				for locations in feature.codon_locations():
 					for location in locations:
 						if location:
