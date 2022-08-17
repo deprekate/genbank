@@ -206,7 +206,6 @@ class Locus(dict):
 		if strand < +1:
 			codons = list(map(rev_comp, codons))
 		for i in range(n, self.length(), 3):
-			#print(list(codons), self.dna[i:i+3])
 			if self.dna[i:i+3] in codons:
 				return i
 		return None

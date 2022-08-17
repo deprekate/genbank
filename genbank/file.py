@@ -60,6 +60,8 @@ class File(dict):
 				if line.startswith('>'):
 					setattr(locus, 'LOCUS', field[1:])
 					locus.dna = ''
+				elif locus.dna is not None:    #locus.LOCUS.startswith('>'):
+					locus.dna += line.rstrip().replace(' ','').lower()
 				elif line.startswith('//'):
 					break
 				else:
@@ -76,10 +78,7 @@ class File(dict):
 					tag,_,value = line[22:].partition('=')
 					current.tags[tag] = value #.replace('"', '')
 			elif field == 'ORIGIN':
-				if locus.LOCUS.startswith('>'):
-					locus.dna += line.rstrip().replace(' ','').lower()
-				else:
-					locus.dna += line.split(maxsplit=1)[1].rstrip().replace(' ','').lower()
+				locus.dna += line.split(maxsplit=1)[1].rstrip().replace(' ','').lower()
 			else:
 				if not line.startswith('            '):
 					field,*value = line.split(maxsplit=1)
@@ -89,8 +88,8 @@ class File(dict):
 					setattr(locus,field,value)
 
 		fp.seek(0)
-		fp.truncate()
-
+		if fp.writable():
+			fp.truncate()
 		return locus
 
 	def write(self, outfile=sys.stdout):
