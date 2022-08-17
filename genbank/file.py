@@ -55,7 +55,9 @@ class File(dict):
 		fp.seek(0)
 		for line in fp:
 			line = line.decode("utf-8")
-			if not line.startswith(' '):
+			if line.startswith('\n'):
+				pass
+			elif not line.startswith(' '):
 				field,*value = line.split(maxsplit=1)
 				if line.startswith('>'):
 					setattr(locus, 'LOCUS', field[1:])
