@@ -165,7 +165,7 @@ class Locus(dict):
 		outfile.write(str(len(self.dna)).rjust(10))
 		outfile.write(' bp  DNA          UNK')
 		outfile.write('\n')
-		if self.DEFINITION:
+		if hasattr(self, 'DEFINITION'):
 			outfile.write('DEFINITION  ' + self.DEFINITION + '\n')
 		outfile.write('FEATURES          Location/Qualifiers\n')
 		#outfile.write('     source       1..')

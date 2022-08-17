@@ -86,7 +86,6 @@ class File(dict):
 				else:
 					value = getattr(locus,field) + line[11:].rstrip()
 					setattr(locus,field,value)
-
 		fp.seek(0)
 		if fp.writable():
 			fp.truncate()
