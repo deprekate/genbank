@@ -212,7 +212,11 @@ class Locus(dict):
 
 	def nearest(self, n, strand, codons):
 		_last = self.last(n,strand,codons)
+		if not _last:
+			_last = 0
 		_next = self.next(n,strand,codons)
+		if not _next:
+			_next = self.length()
 		if n - _last < _next - n:
 			return _last
 		else:
