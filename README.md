@@ -5,15 +5,15 @@ This repo contains several classes to help work with Genbank files
 
 The flow goes:
 ```
-File > Read > Locus > Feature
+File -> Locus -> Feature
 ```
 
 To use:
 ```python
 from genbank.file import File
 
-f = File('infile.gbk')
-for name,locus in f.items():
+file = File('infile.gbk')
+for locus in file:
 	print(name)
 	for feature in locus:
 		print(feature)
@@ -71,6 +71,9 @@ MFQTFISRHNSNFFSDKLVLTSVTPASSAPVLQTPKATSSTLYFDSLTVNA
 >phiX174_CDS_[636..1622] [gene="H"]
 MFGAIAGGIASALAGGAMSKLFGGGQKAASGGIQGDVLATDNNTVGMGDAG
 >phiX174_CDS_[1659..3227] [gene="A"]
+
+$ genbank.py tests/phiX174.gbk -f coverage
+phiX174	0.965
 ```
 
 
