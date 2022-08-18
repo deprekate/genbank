@@ -51,6 +51,7 @@ class File(dict):
 		locus = self.locus()
 		current = None
 		field = None
+		fasta = False
 
 		fp.seek(0)
 		for line in fp:
@@ -61,8 +62,8 @@ class File(dict):
 				field,*value = line.split(maxsplit=1)
 				if line.startswith('>'):
 					setattr(locus, 'LOCUS', field[1:])
-					locus.dna = ''
-				elif locus.dna is not None:    #locus.LOCUS.startswith('>'):
+					fasta = True
+				elif fasta:
 					locus.dna += line.rstrip().replace(' ','').lower()
 				elif line.startswith('//'):
 					break
