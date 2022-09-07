@@ -118,7 +118,7 @@ class Locus(dict):
 			if not include or feature.type in include:
 				yield feature
 
-	def add_feature(self, key, strand, pairs):
+	def add_feature(self, key, strand, pairs, tags=dict()):
 		"""Add a feature to the factory."""
 		#feature = self.feature
 		feature = self.feature(key, strand, pairs, self)
@@ -151,10 +151,10 @@ class Locus(dict):
 			dna = [False] * len(self.dna)
 			seen = dict()
 			for feature in self.features(include=['CDS','tRNA']):
-				for locations in feature.codon_locations():
-					for location in locations:
-						if location:
-							dna[location-1] = True
+				#for locations in feature.codon_locations():
+				for location in feature.base_locations():
+					if location:
+						dna[location-1] = True
 			cbases += sum(dna)
 			tbases += len(dna)
 		return cbases / tbases
