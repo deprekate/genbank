@@ -13,6 +13,8 @@ def grouper(iterable, n, fillvalue=None):
 	args = [iter(iterable)] * n
 	return zip_longest(*args, fillvalue=fillvalue)
 
+def nint(s):
+	return int(s.replace('<','').replace('>',''))
 
 
 class Feature():
@@ -89,10 +91,10 @@ class Feature():
 			return False
 
 	def left(self):
-		return int(self.pairs[0][0].replace('<','').replace('>','') )
+		return nint(self.pairs[0][0])
 	
 	def right(self):
-		return int(self.pairs[-1][-1].replace('<','').replace('>','') )
+		return nint(self.pairs[-1][-1])
 
 	def is_joined(self):
 		if len(self.pairs) > 1:
@@ -105,7 +107,7 @@ class Feature():
 				right = right[0]
 			else:
 				right = left
-			yield int(left.replace('<','')) , int(right.replace('>',''))
+			yield nint(left) , nint(right)
 
 	def __str__(self):
 		"""Compute the string representation of the feature."""
