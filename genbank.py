@@ -43,7 +43,11 @@ if __name__ == "__main__":
 			left,right = map(int, args.slice.split('-'))
 			right = right+1
 		elif ':' in args.slice:
-			left,right = map(int, args.slice.split(':'))
+			left,right = args.slice.split(':')
+			if '+' in right:
+				right = eval(left + right)
+			left,right = map(int, [left,right])
+
 		else:
 			left = int(args.slice)
 			right = left+1
