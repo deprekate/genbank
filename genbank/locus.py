@@ -57,7 +57,7 @@ class Locus(dict):
 		cls.feature = feature
 
 	def name(self):
-		locus = self.LOCUS.split(maxsplit=1)[0] if self.LOCUS else None
+		locus = self.LOCUS.split(maxsplit=1)[0] if self.LOCUS else ''
 		return locus
 
 	def fasta(self):
