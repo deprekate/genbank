@@ -11,9 +11,15 @@ import tempfile
 from collections import Counter
 from argparse import RawTextHelpFormatter
 from itertools import zip_longest, chain
+import shutil
+import tempfile
+import urllib.request
 
 sys.path.pop(0)
 from genbank.file import File
+
+def get(x):
+	return True
 
 def is_valid_file(x):
 	if not os.path.exists(x):
@@ -29,11 +35,21 @@ if __name__ == "__main__":
 	parser = argparse.ArgumentParser(description='', formatter_class=RawTextHelpFormatter, usage=usage)
 	parser.add_argument('infile', type=is_valid_file, help='input file in genbank format')
 	parser.add_argument('-o', '--outfile', action="store", default=sys.stdout, type=argparse.FileType('w'), help='where to write output [stdout]')
-	parser.add_argument('-f', '--format', help='Output the features in the specified format', type=str, default='tabular', choices=['tabular','genbank','fasta', 'fna','faa', 'coverage','rarity','bases','gc','taxonomy'])
+	parser.add_argument('-f', '--format', help='Output the features in the specified format', type=str, default='tabular', choices=['tabular','genbank','fasta', 'fna','faa', 'coverage','rarity','bases','gc','taxonomy','revcomp'])
 	parser.add_argument('-s', '--slice', help='', type=str, default=None)
+	parser.add_argument('-g', '--get', action="store_true")
+	parser.add_argument('-r', '--revcomp', action="store_true")
 	args = parser.parse_args()
 
-	genbank = File(args.infile)
+	if not args.get:
+		genbank = File(args.infile)
+	else:
+		# not ready yet
+		accession,rettype = args.infile.split('.')
+		with urllib.request.urlopen('http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nuccore&id=' + accession + '&rettype=' + rettype + '&retmode=text') as response:
+			with tempfile.NamedTemporaryFile() as tmp:
+				shutil.copyfileobj(response, tmp)
+				genbank = File(tmp.name)
 
 	if args.slice:
 		if '..' in args.slice:
@@ -67,6 +83,8 @@ if __name__ == "__main__":
 				args.outfile.write( getattr(feature, args.format)() )
 	elif args.format in ['fasta']:
 		for name,locus in genbank.items():
+			if args.revcomp:
+				locus.dna = locus.seq(strand=-1)
 			args.outfile.write( getattr(locus, args.format)() )
 	elif args.format == 'coverage':
 		for name,locus in genbank.items():
