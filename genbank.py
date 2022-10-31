@@ -35,7 +35,7 @@ if __name__ == "__main__":
 	parser = argparse.ArgumentParser(description='', formatter_class=RawTextHelpFormatter, usage=usage)
 	parser.add_argument('infile', type=is_valid_file, help='input file in genbank format')
 	parser.add_argument('-o', '--outfile', action="store", default=sys.stdout, type=argparse.FileType('w'), help='where to write output [stdout]')
-	parser.add_argument('-f', '--format', help='Output the features in the specified format', type=str, default='tabular', choices=['tabular','genbank','fasta', 'fna','faa', 'coverage','rarity','bases','gc','taxonomy','revcomp'])
+	parser.add_argument('-f', '--format', help='Output the features in the specified format', type=str, default='tabular', choices=['tabular','genbank','fasta', 'fna','faa', 'coverage','rarity','bases','gc','taxonomy','revcomp','part'])
 	parser.add_argument('-s', '--slice', help='', type=str, default=None)
 	parser.add_argument('-g', '--get', action="store_true")
 	parser.add_argument('-r', '--revcomp', action="store_true")
@@ -116,4 +116,16 @@ if __name__ == "__main__":
 			args.outfile.write('\t')
 			args.outfile.write(locus.ORGANISM)
 			args.outfile.write('\n')
+	elif args.format in ['part']:
+		folder = args.outfile.name if args.outfile.name != '<stdout>' else ''
+		for name,locus in genbank.items():
+			with open(os.path.join(folder,name + '.fna'), 'w') as f:
+				f.write('>')
+				f.write(name)
+				f.write('\n')
+				f.write(locus.seq())
+				f.write('\n')
+
+
+
 
