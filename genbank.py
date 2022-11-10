@@ -11,9 +11,15 @@ import tempfile
 from collections import Counter
 from argparse import RawTextHelpFormatter
 from itertools import zip_longest, chain
+import shutil
+import tempfile
+import urllib.request
 
 sys.path.pop(0)
 from genbank.file import File
+
+def get(x):
+	return True
 
 def is_valid_file(x):
 	if not os.path.exists(x):
@@ -33,7 +39,16 @@ if __name__ == "__main__":
 	parser.add_argument('-s', '--slice', help='This slices the infile at the specified coordinates. \nThe range can be in one of three different formats:\n    -s 0-99      (zero based string indexing)\n    -s 1..100    (one based GenBank indexing)\n    -s 50:+10    (an index and size of slice)', type=str, default=None)
 	args = parser.parse_args()
 
-	genbank = File(args.infile)
+	if not args.get:
+		genbank = File(args.infile)
+	else:
+		raise Exception("not implemented yet")
+		# not ready yet
+		accession,rettype = args.infile.split('.')
+		with urllib.request.urlopen('http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nuccore&id=' + accession + '&rettype=' + rettype + '&retmode=text') as response:
+			with tempfile.NamedTemporaryFile() as tmp:
+				shutil.copyfileobj(response, tmp)
+				genbank = File(tmp.name)
 
 	if args.slice:
 		if '..' in args.slice:
@@ -47,7 +62,6 @@ if __name__ == "__main__":
 			if '+' in right:
 				right = eval(left + right)
 			left,right = map(int, [left,right])
-
 		else:
 			left = int(args.slice)
 			right = left+1
@@ -67,6 +81,8 @@ if __name__ == "__main__":
 				args.outfile.write( getattr(feature, args.format)() )
 	elif args.format in ['fasta']:
 		for name,locus in genbank.items():
+			if args.revcomp:
+				locus.dna = locus.seq(strand=-1)
 			args.outfile.write( getattr(locus, args.format)() )
 	elif args.format == 'coverage':
 		for name,locus in genbank.items():
@@ -99,4 +115,16 @@ if __name__ == "__main__":
 			args.outfile.write('\t')
 			args.outfile.write(locus.ORGANISM)
 			args.outfile.write('\n')
+	elif args.format in ['part']:
+		folder = args.outfile.name if args.outfile.name != '<stdout>' else ''
+		for name,locus in genbank.items():
+			with open(os.path.join(folder,name + '.fna'), 'w') as f:
+				f.write('>')
+				f.write(name)
+				f.write('\n')
+				f.write(locus.seq())
+				f.write('\n')
+
+
+
 
