@@ -156,7 +156,8 @@ class Feature():
 		for left,right in self:
 			#left,right = map(int, [ item.replace('<','').replace('>','') for item in self.pair ] )
 			for i in range(left,right+1):
-				yield i
+				if i <= self.locus.length():
+					yield i
 
 	def codon_locations(self):
 		assert self.type == 'CDS'
@@ -167,6 +168,7 @@ class Feature():
 	def codons(self):
 		assert self.type == 'CDS'
 		for locations in self.codon_locations():
+			print(locations)
 			if self.strand > 0:
 				yield ''.join([self.locus.dna[loc-1] if loc else '' for loc in locations])
 			else:
