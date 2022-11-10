@@ -168,7 +168,6 @@ class Feature():
 	def codons(self):
 		assert self.type == 'CDS'
 		for locations in self.codon_locations():
-			print(locations)
 			if self.strand > 0:
 				yield ''.join([self.locus.dna[loc-1] if loc else '' for loc in locations])
 			else:
