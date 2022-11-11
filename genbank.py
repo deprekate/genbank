@@ -35,10 +35,8 @@ if __name__ == "__main__":
 	parser = argparse.ArgumentParser(description='', formatter_class=RawTextHelpFormatter, usage=usage)
 	parser.add_argument('infile', type=is_valid_file, help='input file in genbank format')
 	parser.add_argument('-o', '--outfile', action="store", default=sys.stdout, type=argparse.FileType('w'), help='where to write output [stdout]')
-	parser.add_argument('-f', '--format', help='Output the features in the specified format', type=str, default='tabular', choices=['tabular','genbank','fasta', 'fna','faa', 'coverage','rarity','bases','gc','taxonomy','revcomp','part'])
-	parser.add_argument('-s', '--slice', help='', type=str, default=None)
-	parser.add_argument('-g', '--get', action="store_true")
-	parser.add_argument('-r', '--revcomp', action="store_true")
+	parser.add_argument('-f', '--format', help='Output the features in the specified format', type=str, default='tabular', choices=['tabular','genbank','fasta', 'fna','faa', 'coverage','rarity','bases','revbases','gc','taxonomy'])
+	parser.add_argument('-s', '--slice', help='This slices the infile at the specified coordinates. \nThe range can be in one of three different formats:\n    -s 0-99      (zero based string indexing)\n    -s 1..100    (one based GenBank indexing)\n    -s 50:+10    (an index and size of slice)', type=str, default=None)
 	args = parser.parse_args()
 
 	if not args.get:
@@ -105,9 +103,10 @@ if __name__ == "__main__":
 				args.outfile.write('\t')
 				args.outfile.write(str(round(freq,5)))
 				args.outfile.write('\n')
-	elif args.format == 'bases':
+	elif args.format in ['bases', 'revbases']:
+		strand = +1 if args.format == 'bases' else -1
 		for name,locus in genbank.items():
-			args.outfile.write(locus.dna)
+			args.outfile.write(locus.seq(strand=strand))
 			args.outfile.write('\n')
 	elif args.format == 'gc':
 		for name,locus in genbank.items():
