@@ -100,19 +100,41 @@ if __name__ == "__main__":
 			args.outfile.write(feature.seq())
 			args.outfile.write("\n")
 	elif args.format == 'gff3':
-		for feature in genbank.features(include=['CDS']):
-			args.outfile.write(str(feature.pairs[0][0]))
-			args.outfile.write("\t")
-			args.outfile.write(str(feature.pairs[0][1]))
-			args.outfile.write("\t")
-			args.outfile.write(feature.type)
-			for tag,value in feature.tags.items():
-				args.outfile.write("\n")
-				args.outfile.write("\t\t\t")
-				args.outfile.write(str(tag))
+		for locus in genbank:
+			args.outfile.write('>Feature')
+			args.outfile.write(' ') # should this be a space or a tab?
+			args.outfile.write(locus.name())
+			args.outfile.write('\n')
+			args.outfile.write('1')
+			args.outfile.write('\t')
+			args.outfile.write(str(locus.length()))
+			args.outfile.write('\t')
+			args.outfile.write('REFERENCE')
+			args.outfile.write('\n')
+			for feature in locus.features(include=['CDS']):
+				pairs = [list(item)[::feature.strand] for item in feature.pairs][::feature.strand]
+				pair = pairs.pop(0)
+				args.outfile.write(pair[0])
 				args.outfile.write("\t")
-				args.outfile.write(str(value))
-			args.outfile.write("\n")
+				args.outfile.write(pair[-1])
+				args.outfile.write("\t")
+				args.outfile.write(feature.type)
+				for pair in pairs:
+					args.outfile.write("\n")
+					args.outfile.write(pair[0])
+					args.outfile.write("\t")
+					args.outfile.write(pair[-1])
+				for tag,values in feature.tags.items():
+					for value in values:
+						args.outfile.write("\n")
+						args.outfile.write("\t\t\t")
+						args.outfile.write(str(tag))
+						args.outfile.write("\t")
+						if value[0] == '"' and value[-1] == '"':
+							args.outfile.write(value[1:-1])
+						else:
+							args.outfile.write(value)
+					args.outfile.write("\n")
 
 	elif args.format in ['fna','faa']:
 		for name,locus in genbank.items():
