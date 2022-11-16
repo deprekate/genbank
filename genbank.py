@@ -14,6 +14,7 @@ from itertools import zip_longest, chain
 import shutil
 import tempfile
 import urllib.request
+import fileinput
 
 sys.path.pop(0)
 from genbank.file import File
@@ -31,14 +32,18 @@ def nint(x):
 
 
 if __name__ == "__main__":
+	choices = 	['tabular','genbank','fasta', 'fna','faa', 'coverage','rarity','bases','gc','taxonomy','part', 'gff3']
+
 	usage = '%s [-opt1, [-opt2, ...]] infile' % __file__
 	parser = argparse.ArgumentParser(description='', formatter_class=RawTextHelpFormatter, usage=usage)
 	parser.add_argument('infile', type=is_valid_file, help='input file in genbank format')
 	parser.add_argument('-o', '--outfile', action="store", default=sys.stdout, type=argparse.FileType('w'), help='where to write output [stdout]')
-	parser.add_argument('-f', '--format', help='Output the features in the specified format', type=str, default='tabular', choices=['tabular','genbank','fasta', 'fna','faa', 'coverage','rarity','bases','gc','taxonomy','revcomp','part'])
+	parser.add_argument('-f', '--format', help='Output the features in the specified format', type=str, default='genbank', choices=choices)
 	parser.add_argument('-s', '--slice', help='This slices the infile at the specified coordinates. \nThe range can be in one of three different formats:\n    -s 0-99      (zero based string indexing)\n    -s 1..100    (one based GenBank indexing)\n    -s 50:+10    (an index and size of slice)', type=str, default=None)
 	parser.add_argument('-g', '--get', action="store_true")
 	parser.add_argument('-r', '--revcomp', action="store_true")
+	parser.add_argument('-e', '--edit', help='This edits the given feature key with the value from the shell input via < new_keys.txt', type=str, default=None)
+	parser.add_argument('-k', '--key', help='Print the given keys [and qualifiers]', type=str, default=None)
 	args = parser.parse_args()
 
 	if not args.get:
@@ -52,6 +57,13 @@ if __name__ == "__main__":
 				shutil.copyfileobj(response, tmp)
 				genbank = File(tmp.name)
 
+	if args.edit:
+		if not sys.stdin.isatty():
+			stdin = sys.stdin.readlines()
+			#sys.stdin = open('/dev/tty')
+		key,qualifier = args.edit.split('/')
+		for feature,new in zip(genbank.features(include=[key]), stdin):
+			feature.tags[qualifier] = [new.rstrip()]
 	if args.slice:
 		if '..' in args.slice:
 			left,right = map(int, args.slice.split('..'))
@@ -74,7 +86,12 @@ if __name__ == "__main__":
 			right = left+1
 		for name,locus in genbank.items():
 			locus = locus.slice(left,right)
-	if args.format == 'genbank':
+	if args.key:
+		key,qualifier = args.key.split('/')
+		for feature in genbank.features(include=key):
+			args.outfile.write('\t'.join(feature.tags[qualifier]))
+			args.outfile.write("\n")
+	elif args.format == 'genbank':
 		genbank.write(args.outfile)	
 	elif args.format == 'tabular':
 		for feature in genbank.features(include=['CDS']):
@@ -82,6 +99,21 @@ if __name__ == "__main__":
 			args.outfile.write("\t")
 			args.outfile.write(feature.seq())
 			args.outfile.write("\n")
+	elif args.format == 'gff3':
+		for feature in genbank.features(include=['CDS']):
+			args.outfile.write(str(feature.pairs[0][0]))
+			args.outfile.write("\t")
+			args.outfile.write(str(feature.pairs[0][1]))
+			args.outfile.write("\t")
+			args.outfile.write(feature.type)
+			for tag,value in feature.tags.items():
+				args.outfile.write("\n")
+				args.outfile.write("\t\t\t")
+				args.outfile.write(str(tag))
+				args.outfile.write("\t")
+				args.outfile.write(str(value))
+			args.outfile.write("\n")
+
 	elif args.format in ['fna','faa']:
 		for name,locus in genbank.items():
 			for feature in locus.features(include=['CDS']):
@@ -105,8 +137,8 @@ if __name__ == "__main__":
 				args.outfile.write('\t')
 				args.outfile.write(str(round(freq,5)))
 				args.outfile.write('\n')
-	elif args.format in ['bases', 'revbases']:
-		strand = +1 if args.format == 'bases' else -1
+	elif args.format == 'bases':
+		strand = -1 if args.revcomp else +1
 		for name,locus in genbank.items():
 			args.outfile.write(locus.seq(strand=strand))
 			args.outfile.write('\n')

@@ -52,6 +52,7 @@ class File(dict):
 		current = None
 		field = None
 		fasta = False
+		
 
 		fp.seek(0)
 		for line in fp:
@@ -59,17 +60,20 @@ class File(dict):
 			if line.startswith('\n'):
 				pass
 			elif not line.startswith(' '):
-				field,*value = line.split(maxsplit=1)
+				group,*value = line.split(maxsplit=1)
 				if line.startswith('>'):
-					setattr(locus, 'LOCUS', field[1:])
+					#setattr(locus, 'LOCUS', header[1:])
+					#setattr(locus, 'LOCUS', header[1:])
+					locus.groups['LOCUS'] = group[1:]
 					fasta = True
 				elif fasta:
 					locus.dna += line.rstrip().replace(' ','').lower()
 				elif line.startswith('//'):
 					break
 				else:
-					setattr(locus, field, ''.join(map(str,value)).rstrip())
-			elif field == 'FEATURES':
+					locus.groups[group] = ''.join(map(str,value))
+					#setattr(locus, header, ''.join(map(str,value)).rstrip())
+			elif group == 'FEATURES':
 				line = line.rstrip()
 				if not line.startswith(' ' * 21):
 					while line.endswith(','):
@@ -79,16 +83,20 @@ class File(dict):
 					while line.count('"') == 1:
 						line += next(fp).decode('utf-8').strip()
 					tag,_,value = line[22:].partition('=')
-					current.tags[tag] = value #.replace('"', '')
-			elif field == 'ORIGIN':
+					#current.tags[tag] = value #.replace('"', '')
+					current.tags.setdefault(tag, []).append(value)
+			elif group == 'ORIGIN':
 				locus.dna += line.split(maxsplit=1)[1].rstrip().replace(' ','').lower()
 			else:
+				locus.groups[group] += line
 				if not line.startswith('            '):
 					field,*value = line.split(maxsplit=1)
-					setattr(locus, field, ''.join(map(str,value)).rstrip())
+					#setattr(locus, field, ''.join(map(str,value)).rstrip())
 				else:
-					value = getattr(locus,field) + line[11:].rstrip()
-					setattr(locus,field,value)
+					#value = getattr(locus,field) + line[11:].rstrip()
+					#)setattr(locus,field,value)
+					pass
+
 		fp.seek(0)
 		if fp.writable():
 			fp.truncate()

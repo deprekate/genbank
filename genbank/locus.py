@@ -45,11 +45,12 @@ class Locus(dict):
 		if not hasattr(self, 'feature'):
 			self.feature = Feature
 		#self.name = name
-		self.LOCUS = name
 		self.dna = dna.lower()
 		#self.codons = dict()
 		self.translate = Translate()
 		self.strand = 1
+		self.groups = dict()
+		self.groups['LOCUS'] = name
 
 	def __init_subclass__(cls, feature=Feature, **kwargs):
 		'''this method allows for a Feature class to be modified through inheritance in other code '''
@@ -57,8 +58,7 @@ class Locus(dict):
 		cls.feature = feature
 
 	def name(self):
-		locus = self.LOCUS.split(maxsplit=1)[0] if self.LOCUS else ''
-		return locus
+		return self.groups['LOCUS'].split()[0]
 
 	def fasta(self):
 		return ">" + self.name() + "\n" + self.seq() + "\n"
@@ -161,16 +161,16 @@ class Locus(dict):
 
 	def write(self, outfile=sys.stdout):
 		outfile.write('LOCUS       ')
-		outfile.write(self.name() )
-		outfile.write(str(len(self.dna)).rjust(10))
-		outfile.write(' bp  DNA          UNK')
-		outfile.write('\n')
-		if hasattr(self, 'DEFINITION'):
-			outfile.write('DEFINITION  ' + self.DEFINITION + '\n')
+		outfile.write(self.groups['LOCUS'])
+		# I eventually need to properly format the locus line
+		#outfile.write(self.name() )
+		#outfile.write(str(len(self.dna)).rjust(10))
+		#outfile.write(' bp  DNA          UNK')
+		for group,value in self.groups.items():
+			if group not in ['LOCUS','FEATURES','ORIGIN']:
+				outfile.write(group.ljust(12))
+				outfile.write(value)
 		outfile.write('FEATURES          Location/Qualifiers\n')
-		#outfile.write('     source       1..')
-		#outfile.write(str(len(self.dna)))
-		#outfile.write('\n')
 		for feature in self:
 			feature.write(outfile)
 		outfile.write('ORIGIN')
