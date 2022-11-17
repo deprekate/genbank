@@ -170,7 +170,7 @@ class Locus(dict):
 			if group not in ['LOCUS','FEATURES','ORIGIN']:
 				outfile.write(group.ljust(12))
 				outfile.write(value)
-		outfile.write('FEATURES          Location/Qualifiers\n')
+		outfile.write('FEATURES             Location/Qualifiers\n')
 		for feature in self:
 			feature.write(outfile)
 		outfile.write('ORIGIN')

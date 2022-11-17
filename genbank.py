@@ -61,7 +61,7 @@ if __name__ == "__main__":
 		if not sys.stdin.isatty():
 			stdin = sys.stdin.readlines()
 			#sys.stdin = open('/dev/tty')
-		key,qualifier = args.edit.split('/')
+		key,qualifier = args.edit.replace('/',':').split(':')
 		for feature,values in zip(genbank.features(include=[key]), stdin):
 			feature.tags[qualifier] = list()
 			for value in values.rstrip().split('\t'):
@@ -90,7 +90,7 @@ if __name__ == "__main__":
 		for name,locus in genbank.items():
 			locus = locus.slice(left,right)
 	if args.key:
-		key,qualifier = args.key.split('/')
+		key,qualifier = args.key.replace('/',':').split(':')
 		for feature in genbank.features(include=key):
 			args.outfile.write('\t'.join(feature.tags[qualifier]))
 			args.outfile.write("\n")
