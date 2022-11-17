@@ -62,8 +62,10 @@ if __name__ == "__main__":
 			stdin = sys.stdin.readlines()
 			#sys.stdin = open('/dev/tty')
 		key,qualifier = args.edit.split('/')
-		for feature,new in zip(genbank.features(include=[key]), stdin):
-			feature.tags[qualifier] = [new.rstrip()]
+		for feature,values in zip(genbank.features(include=[key]), stdin):
+			feature.tags[qualifier] = list()
+			for value in values.rstrip().split('\t'):
+				feature.tags[qualifier].append(value)
 	if args.slice:
 		if '..' in args.slice:
 			left,right = map(int, args.slice.split('..'))
