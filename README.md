@@ -26,7 +26,7 @@ from genbank.locus import Locus
 locus = Locus('test', 'actgactgatcgtagctagc')
 # then add a feature by parsing text of a genbank feature
 locus.read_feature('  CDS  1..10')
-# or add one by manually specifing the type,strand,and locations
+# or add manually by specifing the type,strand,location
 locus.add_feature('CDS',+1,[['10','20']])
 locus.write()
 ```
