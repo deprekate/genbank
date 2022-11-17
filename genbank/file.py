@@ -53,26 +53,26 @@ class File(dict):
 		field = None
 		fasta = False
 		
-
 		fp.seek(0)
 		for line in fp:
 			line = line.decode("utf-8")
 			if line.startswith('\n'):
 				pass
 			elif not line.startswith(' '):
+				# ITS A NEW MAIN GROUP
 				group,*value = line.split(maxsplit=1)
 				if line.startswith('>'):
-					#setattr(locus, 'LOCUS', header[1:])
-					#setattr(locus, 'LOCUS', header[1:])
-					locus.groups['LOCUS'] = group[1:]
+					locus.groups['LOCUS'] = [group[1:]]
 					fasta = True
 				elif fasta:
 					locus.dna += line.rstrip().replace(' ','').lower()
 				elif line.startswith('//'):
 					break
 				else:
-					locus.groups[group] = ''.join(map(str,value))
-					#setattr(locus, header, ''.join(map(str,value)).rstrip())
+					if group in locus.groups and locus.groups[group][-1]:
+						locus.groups[group].append(''.join(map(str,value)))
+					else:
+						locus.groups[group] = [''.join(map(str,value))]
 			elif group == 'FEATURES':
 				line = line.rstrip()
 				if not line.startswith(' ' * 21):
@@ -81,21 +81,14 @@ class File(dict):
 					current = locus.read_feature(line)
 				else:
 					while line.count('"') == 1:
-						line += next(fp).decode('utf-8').strip()
+						line += " " + next(fp).decode('utf-8').strip()
 					tag,_,value = line[22:].partition('=')
 					#current.tags[tag] = value #.replace('"', '')
 					current.tags.setdefault(tag, []).append(value)
 			elif group == 'ORIGIN':
 				locus.dna += line.split(maxsplit=1)[1].rstrip().replace(' ','').lower()
 			else:
-				locus.groups[group] += line
-				if not line.startswith('            '):
-					field,*value = line.split(maxsplit=1)
-					#setattr(locus, field, ''.join(map(str,value)).rstrip())
-				else:
-					#value = getattr(locus,field) + line[11:].rstrip()
-					#)setattr(locus,field,value)
-					pass
+				locus.groups[group][-1] += line
 
 		fp.seek(0)
 		if fp.writable():

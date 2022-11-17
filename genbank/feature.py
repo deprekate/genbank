@@ -216,10 +216,15 @@ class Feature():
 		if not self.strand > 0:
 			outfile.write(')')
 		outfile.write('\n')
-		for key,values in self.tags.items():
+		for tag,values in self.tags.items():
 			for value in values:
-				for line in textwrap.wrap( '/' + str(key) + '=' + str(value) , 58):
+				if not value:
 					outfile.write('                     ')
-					outfile.write(line)
+					outfile.write('/' + str(tag))
 					outfile.write('\n')
+				else:
+					for line in textwrap.wrap( '/' + str(tag) + '=' + str(value) , 58):
+						outfile.write('                     ')
+						outfile.write(line)
+						outfile.write('\n')
 

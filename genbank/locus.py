@@ -50,7 +50,7 @@ class Locus(dict):
 		self.translate = Translate()
 		self.strand = 1
 		self.groups = dict()
-		self.groups['LOCUS'] = name
+		self.groups['LOCUS'] = [name]
 
 	def __init_subclass__(cls, feature=Feature, **kwargs):
 		'''this method allows for a Feature class to be modified through inheritance in other code '''
@@ -58,7 +58,7 @@ class Locus(dict):
 		cls.feature = feature
 
 	def name(self):
-		return self.groups['LOCUS'].split()[0]
+		return self.groups['LOCUS'][0].split()[0]
 
 	def fasta(self):
 		return ">" + self.name() + "\n" + self.seq() + "\n"
@@ -160,32 +160,42 @@ class Locus(dict):
 		return cbases / tbases
 
 	def write(self, outfile=sys.stdout):
-		outfile.write('LOCUS       ')
-		outfile.write(self.groups['LOCUS'])
-		# I eventually need to properly format the locus line
-		#outfile.write(self.name() )
-		#outfile.write(str(len(self.dna)).rjust(10))
-		#outfile.write(' bp  DNA          UNK')
-		for group,value in self.groups.items():
-			if group not in ['LOCUS','FEATURES','ORIGIN']:
-				outfile.write(group.ljust(12))
-				outfile.write(value)
-		outfile.write('FEATURES             Location/Qualifiers\n')
-		for feature in self:
-			feature.write(outfile)
-		outfile.write('ORIGIN')
-		i = 0
-		dna = textwrap.wrap(self.dna, 10)
-		for block in dna:
-			if(i%60 == 0):
-				outfile.write('\n')
-				outfile.write(str(i+1).rjust(9))
-				outfile.write(' ')
-				outfile.write(block.lower())
-			else:
-				outfile.write(' ')
-				outfile.write(block.lower())
-			i += 10
+		for group,values in self.groups.items():
+			for value in values:
+				if group == 'LOCUS':
+					outfile.write('LOCUS       ')
+					outfile.write(self.groups['LOCUS'][0])
+					# I eventually need to properly format the locus line
+					#outfile.write(self.name() )
+					#outfile.write(str(len(self.dna)).rjust(10))
+					#outfile.write(' bp  DNA          UNK')
+				elif group == 'FEATURES':
+					outfile.write('FEATURES             Location/Qualifiers\n')
+					for feature in self:
+						feature.write(outfile)
+				elif group == 'ORIGIN':
+					# should there be spaces after ORIGIN?
+					outfile.write('ORIGIN      ')
+					i = 0
+					dna = textwrap.wrap(self.dna, 10)
+					for block in dna:
+						if(i%60 == 0):
+							outfile.write('\n')
+							outfile.write(str(i+1).rjust(9))
+							outfile.write(' ')
+							outfile.write(block.lower())
+						else:
+							outfile.write(' ')
+							outfile.write(block.lower())
+						i += 10
+				elif group == 'BASE':
+					for value in values:
+						outfile.write(group)
+						outfile.write(' ')
+						outfile.write(value)
+				else:
+					outfile.write(group.ljust(12))
+					outfile.write(value)
 		outfile.write('\n')
 		outfile.write('//')
 		outfile.write('\n')
