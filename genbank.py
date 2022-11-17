@@ -84,6 +84,7 @@ if __name__ == "__main__":
 			left,right = map(int, args.slice.split('-'))
 			right = right+1
 		else:
+			raise Exception("re-circularization not implemented yet")
 			left = int(args.slice)
 			right = left+1
 		for name,locus in genbank.items():

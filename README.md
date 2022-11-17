@@ -75,6 +75,30 @@ MFGAIAGGIASALAGGAMSKLFGGGQKAASGGIQGDVLATDNNTVGMGDAG
 $ genbank.py tests/phiX174.gbk -f coverage
 phiX174	0.965
 ```
+Print out the features of the given **key**/**tag**
+```
+$ genbank.py tests/phiX174.gbk -k CDS/gene > labels.tsv
+```
+Change the H of the second gene to something more informative:
+(ideally you will have columns from other sources, like excel)
+```
+perl -pi -e 's/H/Minor spike/' labels.tsv
+```
 
+Now edit all the features of the given **key**/**tag** 
+with the updated labels:
+```
+$ genbank.py tests/phiX174.gbk -e CDS/gene < labels.tsv | head
+LOCUS       phiX174      5386 bp    DNA             PHG
+DEFINITION  phiX174
+FEATURES          Location/Qualifiers
+     source          1..5386
+     rep_origin      13..56
+     CDS             100..627
+                     /gene="G"
+     CDS             636..1622
+                     /gene="Minor spike"
+     CDS             1659..3227
+```
 
 
