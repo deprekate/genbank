@@ -50,7 +50,9 @@ class Locus(dict):
 		self.translate = Translate()
 		self.strand = 1
 		self.groups = dict()
-		self.groups['LOCUS'] = [name]
+		self.groups['LOCUS'] = [name.replace(' ','')]
+		self.groups['FEATURES'] = ['']
+		self.groups['ORIGIN'] = ['']
 
 	def __init_subclass__(cls, feature=Feature, **kwargs):
 		'''this method allows for a Feature class to be modified through inheritance in other code '''
@@ -59,6 +61,24 @@ class Locus(dict):
 
 	def name(self):
 		return self.groups['LOCUS'][0].split()[0]
+	def molecule(self):
+		if len(locus) > 2:
+			return locus[3]
+		else:
+			return 'DNA'
+	def locus(self):
+		cols = self.groups['LOCUS'][0].split(' ')
+		# I eventually need to properly format the locus line
+		locus =  self.name().ljust(9)
+		locus += str(len(self.dna)).rjust(19)
+		locus += ' bp '
+		if 'bp' in cols:
+			locus += ' '.join(cols[cols.index('bp')+1:])
+		else:
+			locus += '\n'
+		return locus
+
+		
 
 	def fasta(self):
 		return ">" + self.name() + "\n" + self.seq() + "\n"
@@ -164,11 +184,7 @@ class Locus(dict):
 			for value in values:
 				if group == 'LOCUS':
 					outfile.write('LOCUS       ')
-					outfile.write(self.groups['LOCUS'][0])
-					# I eventually need to properly format the locus line
-					#outfile.write(self.name() )
-					#outfile.write(str(len(self.dna)).rjust(10))
-					#outfile.write(' bp  DNA          UNK')
+					outfile.write(self.locus())
 				elif group == 'FEATURES':
 					outfile.write('FEATURES             Location/Qualifiers\n')
 					for feature in self:

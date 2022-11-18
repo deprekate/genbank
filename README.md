@@ -32,9 +32,8 @@ locus.write()
 ```
 which gives:
 ```
-LOCUS       test        20 bp  DNA          UNK
-DEFINITION  test
-FEATURES          Location/Qualifiers
+LOCUS       test                      20 bp
+FEATURES             Location/Qualifiers
      CDS             1..10
      CDS             10..20
 ORIGIN
