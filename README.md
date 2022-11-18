@@ -88,9 +88,8 @@ Now edit all the features of the given **key**:**tag**
 with the updated labels:
 ```
 $ genbank.py tests/phiX174.gbk -e CDS:gene < labels.tsv | head
-LOCUS       phiX174      5386 bp    DNA             PHG
-DEFINITION  phiX174
-FEATURES          Location/Qualifiers
+LOCUS       phiX174                 5386 bp    DNA      PHG
+FEATURES             Location/Qualifiers
      source          1..5386
      rep_origin      13..56
      CDS             100..627
