@@ -51,8 +51,8 @@ class Locus(dict):
 		self.strand = 1
 		self.groups = dict()
 		self.groups['LOCUS'] = [name.replace(' ','')]
-		self.groups['FEATURES'] = ['']
-		self.groups['ORIGIN'] = ['']
+		#self.groups['FEATURES'] = ['']
+		#self.groups['ORIGIN'] = ['']
 
 	def __init_subclass__(cls, feature=Feature, **kwargs):
 		'''this method allows for a Feature class to be modified through inheritance in other code '''
@@ -185,11 +185,11 @@ class Locus(dict):
 				if group == 'LOCUS':
 					outfile.write('LOCUS       ')
 					outfile.write(self.locus())
-				elif group == 'FEATURES':
+				elif group == 'FEATURES' or 'FEATURES' not in self.groups:
 					outfile.write('FEATURES             Location/Qualifiers\n')
 					for feature in self:
 						feature.write(outfile)
-				elif group == 'ORIGIN':
+				elif group == 'ORIGIN' or 'ORIGIN' not in self.groups:
 					# should there be spaces after ORIGIN?
 					outfile.write('ORIGIN      ')
 					i = 0

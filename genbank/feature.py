@@ -218,13 +218,13 @@ class Feature():
 		outfile.write('\n')
 		for tag,values in self.tags.items():
 			for value in values:
-				if not value:
-					outfile.write('                     ')
-					outfile.write('/' + str(tag))
-					outfile.write('\n')
-				else:
+				if value is not None:
 					for line in textwrap.wrap( '/' + str(tag) + '=' + str(value) , 58):
 						outfile.write('                     ')
 						outfile.write(line)
 						outfile.write('\n')
+				else:
+					outfile.write('                     ')
+					outfile.write('/' + str(tag))
+					outfile.write('\n')
 
