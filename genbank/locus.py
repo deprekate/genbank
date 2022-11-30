@@ -254,12 +254,14 @@ class Locus(dict):
 
 	def codon_rarity(self, codon=None):
 		if not hasattr(self, 'rarity'):
+			seen = dict()
 			self.rarity = {a+b+c : 1 for a in 'acgt' for b in 'acgt' for c in 'acgt'}
 			for feature in self:
 				if feature.type == 'CDS':
-					for _codon in feature.codons():
-						if _codon in self.rarity:
+					for _codon, _loc in zip(feature.codons(), feature.codon_locations()):
+						if _codon in self.rarity and _loc not in seen:
 							self.rarity[_codon] += 1
+							seen[_loc] = True
 		total = sum(self.rarity.values())
 		self.rarity = {codon:self.rarity[codon]/total for codon in self.rarity}
 		if codon in self.rarity:
