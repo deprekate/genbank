@@ -70,7 +70,6 @@ if __name__ == "__main__":
 		if '..' in args.slice:
 			left,right = map(int, args.slice.split('..'))
 			left = left - 1
-			right = right + 1
 		elif ':' in args.slice:
 			left,right = args.slice.split(':')
 			if '+' in right and '-' in right:

@@ -278,7 +278,7 @@ class Locus(dict):
 			self.strand = -1
 		self.dna = self.seq(left,right)
 		for feature in list(self.keys()):
-			if feature.right() < left:
+			if feature.right() - 1 < left:
 				del self[feature]
 			elif feature.left() > right:
 				del self[feature]
