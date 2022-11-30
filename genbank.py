@@ -80,9 +80,11 @@ if __name__ == "__main__":
 			elif '-' in right:
 				left,right = eval(left + right) , left
 			left,right = map(int, [left,right])
+			left = left + 1
 		elif '-' in args.slice:
 			left,right = map(int, args.slice.split('-'))
-			right = right+1
+			left = left + 1
+			right = right + 1
 		else:
 			raise Exception("re-circularization not implemented yet")
 			left = int(args.slice)

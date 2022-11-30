@@ -284,7 +284,7 @@ class Locus(dict):
 			else:
 				# whew there is a lot going on here
 				f0 = lambda x : int(x.replace('<','').replace('>',''))
-				f1 = lambda x : '<1' if f0(x) - left < 1 else ('>'+str(self.length()) if f0(x) - left > self.length() else f0(x) - left)
+				f1 = lambda x : '<1' if f0(x) - left < 1 else ('>'+str(self.length()) if f0(x) - left > self.length() else f0(x) - left + 1)
 				f2 = lambda x : str(f1(x))
 				feature.pairs = rmap(f2, feature.pairs)
 		return self
