@@ -56,6 +56,12 @@ if __name__ == "__main__":
 			with tempfile.NamedTemporaryFile() as tmp:
 				shutil.copyfileobj(response, tmp)
 				genbank = File(tmp.name)
+	for name,locus in genbank.items():
+		print(locus.last(6, 'tgc', +1))
+		print(locus.last(53118, 'taa', -1))
+		print(locus.next(6, 'ccc', +1))
+		print(locus.next(53120, 'cga', -1))
+		exit()
 
 	if args.edit:
 		if not sys.stdin.isatty():

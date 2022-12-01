@@ -217,24 +217,35 @@ class Locus(dict):
 		outfile.write('//')
 		outfile.write('\n')
 
-	def last(self, n, strand, codons):
+	def last(self, n, codons, strand):
+		# this needs to be 0-based indexing
 		if isinstance(codons, str):
-			codons = [codons]
-		if strand < +1:
-			codons = list(map(rev_comp, codons))
-		for i in range(n, 0, -3):
-			if self.dna[i:i+3] in codons:
-				return i
+			codons = [codons.lower()]
+		codons = [codon.lower() for codon in codons]
+		if strand > 0:
+			#codons = list(map(rev_comp, codons.lower()))
+			for i in range(n,            -1, -3):
+				if self.seq(i,i+3,strand) in codons:
+					return i
+		else:
+			for i in range(n, self.length(), +3):
+				if self.seq(i,i+3,strand) in codons:
+					return i
 		return None
 
-	def next(self, n, strand, codons):
+	def next(self, n, codons, strand):
 		if isinstance(codons, str):
 			codons = [codons]
-		if strand < +1:
-			codons = list(map(rev_comp, codons))
-		for i in range(n, self.length(), 3):
-			if self.dna[i:i+3] in codons:
-				return i
+		codons = [codon.lower() for codon in codons]
+		if strand > 0:
+			#codons = list(map(rev_comp, codons))
+			for i in range(n, self.length(), +3):
+				if self.seq(i,i+3,strand) in codons:
+					return i
+		else:
+			for i in range(n,            -1, -3):
+				if self.seq(i,i+3,strand) in codons:
+					return i
 		return None
 
 	def nearest(self, n, strand, codons):
