@@ -56,7 +56,7 @@ if __name__ == "__main__":
 			with tempfile.NamedTemporaryFile() as tmp:
 				shutil.copyfileobj(response, tmp)
 				genbank = File(tmp.name)
-	
+		
 	if args.edit:
 		if not sys.stdin.isatty():
 			stdin = sys.stdin.readlines()

@@ -223,14 +223,13 @@ class Locus(dict):
 			codons = [codons.lower()]
 		codons = [codon.lower() for codon in codons]
 		if strand > 0:
-			#codons = list(map(rev_comp, codons.lower()))
-			for i in range(n,            -1, -3):
-				if self.seq(i,i+3,strand) in codons:
-					return i
+			irange = range(n,            -1, -3)
 		else:
-			for i in range(n, self.length(), +3):
-				if self.seq(i,i+3,strand) in codons:
-					return i
+			irange = range(n, self.length(), +3)
+
+		for i in irange:
+			if self.seq(i,i+3,strand) in codons:
+				return i
 		return None
 
 	def next(self, n, codons, strand):
@@ -238,14 +237,12 @@ class Locus(dict):
 			codons = [codons]
 		codons = [codon.lower() for codon in codons]
 		if strand > 0:
-			#codons = list(map(rev_comp, codons))
-			for i in range(n, self.length(), +3):
-				if self.seq(i,i+3,strand) in codons:
-					return i
+			irange = range(n, self.length(), +3)
 		else:
-			for i in range(n,            -1, -3):
-				if self.seq(i,i+3,strand) in codons:
-					return i
+			irange = range(n,            -1, -3)
+		for i in irange:
+			if self.seq(i,i+3,strand) in codons:
+				return i
 		return None
 
 	def nearest(self, n, strand, codons):
