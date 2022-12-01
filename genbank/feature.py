@@ -57,9 +57,9 @@ class Feature():
 		if self.type != 'CDS':
 			return 0
 		elif end == 'right':
-			return (((self.right()-3)%3)+1) * self.strand
+			return (self.right()%3+1) * self.strand
 		elif end == 'left':
-			return (((self.left() -1)%3)+1) * self.strand
+			return (self.left()%3+1) * self.strand
 
 	def hypothetical(self):
 		function = self.tags['product'] if 'product' in self.tags else ''
@@ -91,10 +91,12 @@ class Feature():
 			return False
 
 	def left(self):
-		return nint(self.pairs[0][0])
+		# convert genbank 1-based indexing to standard 0-based
+		return nint(self.pairs[0][0]) - 1
 	
 	def right(self):
-		return nint(self.pairs[-1][-1])
+		# convert genbank 1-based indexing to standard 0-based
+		return nint(self.pairs[-1][-1]) - 3
 
 	def is_joined(self):
 		if len(self.pairs) > 1:

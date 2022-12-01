@@ -128,7 +128,7 @@ class Locus(dict):
 		for feature in self:
 			if feature.type == 'CDS':
 				if feature.strand > 0:
-					start = feature.left()+2
+					start = feature.left()+3
 					feature.tags['rbs'] = self.seq(start-30,start)
 				else:
 					start = feature.right()
