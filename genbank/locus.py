@@ -186,11 +186,11 @@ class Locus(dict):
 				if group == 'LOCUS':
 					outfile.write('LOCUS       ')
 					outfile.write(self.locus())
-				elif group == 'FEATURES' or 'FEATURES' not in self.groups:
+				if group == 'FEATURES' or 'FEATURES' not in self.groups:
 					outfile.write('FEATURES             Location/Qualifiers\n')
 					for feature in self:
 						feature.write(outfile)
-				elif group == 'ORIGIN' or 'ORIGIN' not in self.groups:
+				if group == 'ORIGIN' or 'ORIGIN' not in self.groups:
 					# should there be spaces after ORIGIN?
 					outfile.write('ORIGIN      ')
 					i = 0

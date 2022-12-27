@@ -215,7 +215,7 @@ class Feature():
 		if len(self.pairs) > 1:
 			outfile.write(')')
 		# the pairs
-		if not self.strand > 0:
+		if self.strand < 0:
 			outfile.write(')')
 		outfile.write('\n')
 		for tag,values in self.tags.items():
