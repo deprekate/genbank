@@ -82,9 +82,12 @@ class File(dict):
 				else:
 					while line.count('"') == 1:
 						line += " " + next(fp).decode('utf-8').strip()
-					tag,_,value = line[22:].partition('=')
+					tag,sep,value = line[22:].partition('=')
 					#current.tags[tag] = value #.replace('"', '')
-					current.tags.setdefault(tag, []).append(value)
+					if sep:
+						current.tags.setdefault(tag, []).append(value)
+					else:
+						current.tags.setdefault(tag, []).append(None)
 			elif group == 'ORIGIN':
 				locus.dna += line.split(maxsplit=1)[1].rstrip().replace(' ','').lower()
 			else:

@@ -175,9 +175,7 @@ if __name__ == "__main__":
 			args.outfile.write('\n')
 	elif args.format == 'taxonomy':
 		for name,locus in genbank.items():
-			args.outfile.write(locus.name())
-			args.outfile.write('\t')
-			args.outfile.write(locus.ORGANISM)
+			args.outfile.write(locus.groups['SOURCE'][0].replace('\n','\t').replace('            ','').replace(';\t','; ') )
 			args.outfile.write('\n')
 	elif args.format in ['part']:
 		folder = args.outfile.name if args.outfile.name != '<stdout>' else ''
