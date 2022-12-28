@@ -7,7 +7,7 @@ from itertools import chain as chain
 from genbank.locus import Locus
 
 class File(dict):
-	def __init__(self, filename=None, args=None):
+	def __init__(self, filename=None):
 		if not hasattr(self, 'locus'):
 			self.locus = Locus
 		''' use tempfiles since using next inside a for loop is easier'''
@@ -53,7 +53,7 @@ class File(dict):
 		field = None
 		fasta = False
 		
-		temp.seek(0)
+		fp.seek(0)
 		for line in fp:
 			line = line.decode("utf-8")
 			if line.startswith('\n'):
