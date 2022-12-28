@@ -85,16 +85,16 @@ class Locus(dict):
 
 	def seq(self, left=0, right=None, strand=None):
 		# this should always refer to zero based indexing
-		if strand is None:
-			strand = self.strand
+		#if strand is None:
+		#	strand = self.strand
 		if left < 0:
-			left = 0
-		if right is None:
-			right = self.length() - 1
-		if strand > 0:
-			return Seq(         self.dna[left : right])
-		else:
+			left = None
+		#if right is None:
+		#	right = self.length() - 1
+		if strand and strand < 0:
 			return Seq(rev_comp(self.dna[left : right]))
+		else:
+			return Seq(         self.dna[left : right] )
 
 	def length(self):
 		return len(self.dna)
