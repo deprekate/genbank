@@ -53,7 +53,10 @@ class Feature():
 		for tag,values in self.tags.items():
 			if tag != 'translation':
 				for value in values:
-					header += " [" + tag + "=" + value +"]"
+					if value:
+						header += " [" + tag + "=" + value +"]"
+					else:
+						header += " [" + tag +"]"
 		return header + "\n"
 
 	def frame(self, end):
