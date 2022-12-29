@@ -149,11 +149,15 @@ if __name__ == "__main__":
 				locus.dna = locus.seq(strand=-1)
 			args.outfile.write( getattr(locus, args.format)() )
 	elif args.format == 'coverage':
+		cbases = tbases = 0
 		for name,locus in genbank.items():
-			args.outfile.write( name )
-			args.outfile.write( '\t' )
-			args.outfile.write( str(locus.gene_coverage()) )
-			args.outfile.write( '\n' )
+			c,t = locus.gene_coverage()
+			cbases += c
+			tbases += t
+		#args.outfile.write( name )
+		#args.outfile.write( '\t' )
+		args.outfile.write( str( cbases / tbases ) )
+		args.outfile.write( '\n' )
 	elif args.format == 'rarity':
 		rarity = dict()
 		for name,locus in genbank.items():
