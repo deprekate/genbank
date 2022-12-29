@@ -33,9 +33,10 @@ class Feature():
 		return len(self.seq())
 
 	def seq(self):
+		#def seq(self, left=0, right=None, strand=None):
 		seq = ''
 		for n in self.base_locations():
-			seq += self.locus.seq(n,n, self.strand)
+			seq += self.locus.seq(n-1,n, self.strand)
 		if self.strand > 0:
 			return seq
 		else:
@@ -49,8 +50,10 @@ class Feature():
 	
 	def header(self):
 		header = ">" + self.locus.name() + "_CDS_[" + self.locations() + "]"
-		for tag in self.tags:
-			header += " [" + tag + "=" + self.tags[tag] +"]"
+		for tag,values in self.tags.items():
+			if tag != 'translation':
+				for value in values:
+					header += " [" + tag + "=" + value +"]"
 		return header + "\n"
 
 	def frame(self, end):
