@@ -112,7 +112,7 @@ class Feature():
 				right = right[0]
 			else:
 				right = left
-			yield nint(left) , nint(right)
+			yield nint(left)-1 , nint(right)-1
 
 	def __str__(self):
 		"""Compute the string representation of the feature."""
@@ -157,7 +157,7 @@ class Feature():
 	def base_locations(self, full=False):
 		if full and self.partial == 'left': 
 			for i in range(-((3 - len(self.dna) % 3) % 3), 0, 1):
-				yield i+1
+				yield i
 		for left,right in self:
 			#left,right = map(int, [ item.replace('<','').replace('>','') for item in self.pair ] )
 			for i in range(left,right+1):
