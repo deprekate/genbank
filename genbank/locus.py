@@ -179,7 +179,7 @@ class Locus(dict):
 						dna[location-1] = True
 			cbases += sum(dna)
 			tbases += len(dna)
-		return cbases / tbases
+		return cbases , tbases
 
 	def write(self, outfile=sys.stdout):
 		for group,values in self.groups.items():
