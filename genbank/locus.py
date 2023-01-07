@@ -246,7 +246,7 @@ class Locus(dict):
 				return i
 		return None
 
-	def nearest(self, n, strand, codons):
+	def nearest(self, n, codons, strand):
 		_last = self.last(n,strand,codons)
 		if not _last:
 			_last = 0

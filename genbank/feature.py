@@ -164,13 +164,13 @@ class Feature():
 		for left,right in self:
 			#left,right = map(int, [ item.replace('<','').replace('>','') for item in self.pair ] )
 			for i in range(left,right+1):
-				if i <= self.locus.length():
+				if i < self.locus.length():
 					yield i
 
 	def codon_locations(self):
 		assert self.type == 'CDS'
 		for triplet in grouper(self.base_locations(full=True), 3):
-			if triplet[0] >= 1:
+			if triplet[0] >= 0:
 				yield triplet
 
 	def codons(self):
