@@ -177,9 +177,9 @@ class Feature():
 		assert self.type == 'CDS'
 		for locations in self.codon_locations():
 			if self.strand > 0:
-				yield ''.join([self.locus.dna[loc-1] if loc else '' for loc in locations])
+				yield ''.join([self.locus.dna[loc] if loc else '' for loc in locations])
 			else:
-				yield rev_comp(''.join([self.locus.dna[loc-1] if loc else '' for loc in locations]))
+				yield rev_comp(''.join([self.locus.dna[loc] if loc else '' for loc in locations]))
 
 	def split(self):
 		a = copy.copy(self)
