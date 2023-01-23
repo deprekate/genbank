@@ -33,10 +33,9 @@ class Feature():
 		return len(self.seq())
 
 	def seq(self):
-		#def seq(self, left=0, right=None, strand=None):
 		seq = ''
 		for n in self.base_locations():
-			seq += self.locus.seq(n-1,n, self.strand)
+			seq += self.locus.seq(n,n+1, self.strand)
 		if self.strand > 0:
 			return seq
 		else:
