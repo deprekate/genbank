@@ -143,7 +143,7 @@ class Locus(dict):
 	def add_feature(self, key, strand, pairs, tags=dict()):
 		"""Add a feature to the factory."""
 		#feature = self.feature
-		feature = self.feature(key, strand, pairs, self)
+		feature = self.feature(key, strand, pairs, self, tags=tags)
 		if feature not in self:
 			self[feature] = len(self)
 		return feature
