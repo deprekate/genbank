@@ -67,17 +67,6 @@ class Locus(dict):
 			return locus[3]
 		else:
 			return 'DNA'
-	def locus(self):
-		cols = self.groups['LOCUS'][0].split(' ')
-		# I eventually need to properly format the locus line
-		locus =  self.name().ljust(9)
-		locus += str(len(self.dna)).rjust(19)
-		locus += ' bp '
-		if 'bp' in cols:
-			locus += ' '.join(cols[cols.index('bp')+1:])
-		else:
-			locus += '\n'
-		return locus
 
 		
 
@@ -181,12 +170,29 @@ class Locus(dict):
 			tbases += len(dna)
 		return cbases , tbases
 
-	def write(self, outfile=sys.stdout):
+	def write(self, outfile=sys.stdout, args=None):
+		if not args or args.format == 'genbank':
+			self.write_gbk(outfile)
+		elif args.format == 'gff':
+			self.write_gff(outfile)
+		elif args.format == 'gff3':
+			self.write_gff3(outfile)
+
+	def write_gbk(self, outfile=sys.stdout):
 		for group,values in self.groups.items():
 			for value in values:
 				if group == 'LOCUS':
 					outfile.write('LOCUS       ')
-					outfile.write(self.locus())
+					cols = self.groups['LOCUS'][0].split(' ')
+					# I eventually need to properly format the locus line
+					outfile.write(self.name().ljust(9))
+					outfile.write(str(len(self.dna)).rjust(19))
+					outfile.write(' bp ')
+					if 'bp' in cols:
+						outfile.write(' '.join(cols[cols.index('bp')+1:]))
+					else:
+						outfile.write('\n')
+					continue
 				if group == 'FEATURES' or 'FEATURES' not in self.groups:
 					outfile.write('FEATURES             Location/Qualifiers\n')
 					for feature in self:
@@ -217,6 +223,84 @@ class Locus(dict):
 		outfile.write('\n')
 		outfile.write('//')
 		outfile.write('\n')
+
+	def write_gff3(self, outfile=sys.stdout):
+		outfile.write('>Feature')
+		outfile.write(' ') # should this be a space or a tab?
+		outfile.write(self.name())
+		outfile.write('\n')
+		outfile.write('1')
+		outfile.write('\t')
+		outfile.write(str(self.length()))
+		outfile.write('\t')
+		outfile.write('REFERENCE')
+		outfile.write('\n')
+		for feature in self.features(include=['CDS']):
+			pairs = [list(item)[::feature.strand] for item in feature.pairs][::feature.strand]
+			pair = pairs.pop(0)
+			outfile.write(pair[0])
+			outfile.write("\t")
+			outfile.write(pair[-1])
+			outfile.write("\t")
+			outfile.write(feature.type)
+			for pair in pairs:
+				outfile.write("\n")
+				outfile.write(pair[0])
+				outfile.write("\t")
+				outfile.write(pair[-1])
+			for tag,values in feature.tags.items():
+				for value in values:
+					outfile.write("\n")
+					outfile.write("\t\t\t")
+					outfile.write(str(tag))
+					outfile.write("\t")
+					if value is None:
+						pass
+					elif value[0] == '"' and value[-1] == '"':
+						outfile.write(value[1:-1])
+					else:
+						outfile.write(value)
+			outfile.write("\n")
+
+	def write_gff(self, outfile=sys.stdout):
+		outfile.write("##gff-version 3\n")
+		for feature in self:
+			outfile.write(self.name())
+			outfile.write("\t")
+			if 'SOURCE' in self.groups:
+				outfile.write(self.groups['SOURCE'][0].split('\n')[0])
+			else:
+				outfile.write('None')
+			outfile.write("\t")
+			outfile.write(feature.type)
+			outfile.write("\t")
+			outfile.write(feature.pairs[0][0])
+			outfile.write("\t")
+			outfile.write(feature.pairs[-1][-1])
+			outfile.write("\t")
+			if hasattr(feature, 'score'):
+				outfile.write(str(feature.score))
+			else:
+				outfile.write('.')
+			outfile.write("\t")
+			outfile.write(str(feature.strand).replace('-1','-').replace('1','+'))
+			outfile.write("\t")
+			outfile.write(".")
+			outfile.write("\t")
+			for tag,values in feature.tags.items():
+				for value in values:
+					outfile.write(str(tag))
+					if value is None:
+						pass
+					elif value[0] == '"' and value[-1] == '"':
+						outfile.write("=")
+						outfile.write(value[1:-1])
+					else:
+						outfile.write("=")
+						outfile.write(value)
+				outfile.write(";")
+			outfile.write("\n")
+
 
 	def last(self, n, codons, strand):
 		# this needs to be 0-based indexing
