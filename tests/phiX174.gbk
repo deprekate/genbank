@@ -5,7 +5,7 @@ FEATURES             Location/Qualifiers
      rep_origin      13..56
      CDS             100..627
                      /gene="G"
-                     /note
+                     /note="merged"
      CDS             636..1622
                      /gene="H"
      CDS             1659..3227

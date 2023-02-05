@@ -169,16 +169,15 @@ class Locus(dict):
 	def gene_coverage(self):
 		''' This calculates the protein coding gene coverage, which should be around 1 '''
 		cbases = tbases = 0	
-		for locus in self.values():
-			dna = [False] * len(self.dna)
-			seen = dict()
-			for feature in self.features(include=['CDS','tRNA']):
-				#for locations in feature.codon_locations():
-				for location in feature.base_locations():
-					if location:
-						dna[location-1] = True
-			cbases += sum(dna)
-			tbases += len(dna)
+		dna = [False] * len(self.dna)
+		seen = dict()
+		for feature in self.features(include=['CDS','tRNA']):
+			#for locations in feature.codon_locations():
+			for location in feature.base_locations():
+				if location:
+					dna[location-1] = True
+		cbases += sum(dna)
+		tbases += len(dna)
 		return cbases , tbases
 
 	def write(self, outfile=sys.stdout):
