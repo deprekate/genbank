@@ -26,8 +26,8 @@ class Feature():
 		self.pairs = tuple([tuple(pair) for pair in pairs])
 		self.locus = locus
 		self.tags = tags if tags else dict()
-		self.dna = ''
-		self.partial = False
+		#self.dna = ''
+		#self.partial = False
 	
 	def length(self):
 		return len(self.seq())
@@ -157,8 +157,8 @@ class Feature():
 
 
 	def base_locations(self, full=False):
-		if full and self.partial == 'left': 
-			for i in range(-((3 - len(self.dna) % 3) % 3), 0, 1):
+		if full and self.partial() == 'left': 
+			for i in range(-((3 - self.length() % 3) % 3), 0, 1):
 				yield i
 		for left,right in self:
 			#left,right = map(int, [ item.replace('<','').replace('>','') for item in self.pair ] )
@@ -188,7 +188,7 @@ class Feature():
 	def translation(self):
 		aa = []
 		codon = ''
-		first = 0 if not self.partial else len(self.dna) % 3
+		first = 0 if not self.partial() else self.length() % 3
 		dna = self.seq()
 		for i in range(first, self.length(), 3):
 			codon = dna[ i : i+3 ]
