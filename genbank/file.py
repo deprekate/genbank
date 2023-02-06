@@ -52,7 +52,7 @@ class File(dict):
 		current = None
 		field = None
 		fasta = False
-		
+		dna = []	
 		fp.seek(0)
 		for line in fp:
 			line = line.decode("utf-8")
@@ -73,6 +73,9 @@ class File(dict):
 						locus.groups[group].append(''.join(map(str,value)))
 					else:
 						locus.groups[group] = [''.join(map(str,value))]
+			elif group == 'ORIGIN':
+				#locus.dna += line.split(maxsplit=1)[1].rstrip().replace(' ','').lower()
+				dna.append( line.split(maxsplit=1)[1].rstrip().replace(' ','').lower() )
 			elif group == 'FEATURES':
 				line = line.rstrip()
 				if not line.startswith(' ' * 21):
@@ -88,11 +91,10 @@ class File(dict):
 						current.tags.setdefault(tag, []).append(value)
 					else:
 						current.tags.setdefault(tag, []).append(None)
-			elif group == 'ORIGIN':
-				locus.dna += line.split(maxsplit=1)[1].rstrip().replace(' ','').lower()
 			else:
 				locus.groups[group][-1] += line
 
+		locus.dna = ''.join(dna)
 		fp.seek(0)
 		if fp.writable():
 			fp.truncate()
