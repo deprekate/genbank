@@ -65,7 +65,7 @@ class File(dict):
 					locus.groups['LOCUS'] = [group[1:]]
 					fasta = True
 				elif fasta:
-					locus.dna += line.rstrip().replace(' ','').lower()
+					dna.append( line.rstrip().replace(' ','').lower() )
 				elif line.startswith('//'):
 					break
 				else:
