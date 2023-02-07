@@ -2,6 +2,7 @@ import re
 import sys
 import textwrap
 from collections.abc import Sequence
+from itertools import chain
 
 from genbank.codons import Last
 from genbank.codons import Next
@@ -178,7 +179,7 @@ class Locus(dict):
 			self.write_gff3(outfile)
 
 	def write_gbk(self, outfile=sys.stdout):
-		for group,values in self.groups.items():
+		for group,values in chain(self.groups.items(), [[None,[None]]] ):
 			for value in values:
 				if group == 'LOCUS':
 					outfile.write('LOCUS       ')
@@ -192,11 +193,11 @@ class Locus(dict):
 					else:
 						outfile.write('\n')
 					continue
-				if group == 'FEATURES' or 'FEATURES' not in self.groups:
+				elif group == 'FEATURES' or (not group and 'FEATURES' not in self.groups):
 					outfile.write('FEATURES             Location/Qualifiers\n')
 					for feature in self:
 						feature.write(outfile)
-				if group == 'ORIGIN' or 'ORIGIN' not in self.groups:
+				elif group == 'ORIGIN' or (not group and 'ORIGIN' not in self.groups):
 					# should there be spaces after ORIGIN?
 					outfile.write('ORIGIN      ')
 					i = 0
@@ -216,7 +217,7 @@ class Locus(dict):
 						outfile.write(group)
 						outfile.write(' ')
 						outfile.write(value)
-				else:
+				elif group:
 					outfile.write(group.ljust(12))
 					outfile.write(value)
 		outfile.write('\n')
