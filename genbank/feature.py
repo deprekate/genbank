@@ -188,7 +188,7 @@ class Feature():
 	def translation(self):
 		aa = []
 		codon = ''
-		first = 0 if not self.partial() else self.length() % 3
+		first = self.length() % 3 if (self.partial() == 'left' and self.strand > 0) or (self.partial() == 'right' and self.strand < 0) else 0
 		dna = self.seq()
 		for i in range(first, self.length(), 3):
 			codon = dna[ i : i+3 ]
