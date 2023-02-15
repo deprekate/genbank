@@ -59,7 +59,7 @@ class Feature():
 		else:
 			return seq[::-1]
 
-	def base_locations(self, full=False):
+	def base_locations(self, full=True):
 		#if full and self.partial() == 'left': 
 		if self.partial() == 'left': 
 			for i in range(-(self.frame()%3),0,1): #range(-((3 - self.frame() % 3) % 3), 0, 1):
@@ -70,7 +70,7 @@ class Feature():
 				if i < self.locus.length():
 					yield i
 
-	def codon_locations(self):
+	def codon_locations(self, full=True):
 		assert self.type == 'CDS'
 		for triplet in grouper(self.base_locations(full=True), 3):
 			#if triplet[0] >= 0:
