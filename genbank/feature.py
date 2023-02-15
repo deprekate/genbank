@@ -2,6 +2,7 @@ from itertools import zip_longest, chain
 import textwrap
 import copy
 
+from genbank.sequence import Seq
 
 def rev_comp(dna):
 	a = 'acgtrykmbvdh'
@@ -28,6 +29,23 @@ class Feature():
 		self.tags = tags if tags else dict()
 		#self.dna = ''
 		#self.partial = False
+
+	def frame(self, end='left'):
+		if self.type != 'CDS':
+			return 0
+		elif end == 'right' or self.partial() == 'left':
+			return (self.right()%3+1) * self.strand
+		elif end == 'left' or self.partial() == 'right':
+			return (self.left()%3+1) * self.strand
+
+	def left(self):
+		# convert genbank 1-based indexing to standard 0-based
+		# this is probably not right for <1 that should -2
+		return nint(self.pairs[0][0]) - 1
+	
+	def right(self):
+		# convert genbank 1-based indexing to standard 0-based
+		return nint(self.pairs[-1][-1]) - 3
 	
 	def length(self):
 		return len(self.seq())
@@ -40,6 +58,34 @@ class Feature():
 			return seq
 		else:
 			return seq[::-1]
+
+	def base_locations(self, full=False):
+		#if full and self.partial() == 'left': 
+		if self.partial() == 'left': 
+			for i in range(-(self.frame()%3),0,1): #range(-((3 - self.frame() % 3) % 3), 0, 1):
+				yield i
+		for left,right in self:
+			#left,right = map(int, [ item.replace('<','').replace('>','') for item in self.pair ] )
+			for i in range(left,right+1):
+				if i < self.locus.length():
+					yield i
+
+	def codon_locations(self):
+		assert self.type == 'CDS'
+		for triplet in grouper(self.base_locations(full=True), 3):
+			#if triplet[0] >= 0:
+			yield triplet
+
+	def codons(self):
+		assert self.type == 'CDS'
+		if self.strand > 0:
+			for locations in self.codon_locations():
+				#yield ''.join([self.locus.dna[loc] if loc else '' for loc in locations])
+				yield self.locus.seq()[locations[0]:locations[2]+1]
+		else:
+			for locations in self.codon_locations():
+				#yield rev_comp(''.join([self.locus.dna[loc] if loc else '' for loc in locations]))
+				yield rev_comp(self.locus.seq()[ locations[0] : locations[2]+1 ])
 
 	def fna(self):
 		return self.header() + self.seq() + "\n"
@@ -57,14 +103,6 @@ class Feature():
 					else:
 						header += " [" + tag +"]"
 		return header + "\n"
-
-	def frame(self, end):
-		if self.type != 'CDS':
-			return 0
-		elif end == 'right':
-			return (self.right()%3+1) * self.strand
-		elif end == 'left':
-			return (self.left()%3+1) * self.strand
 
 	def hypothetical(self):
 		function = self.tags['product'] if 'product' in self.tags else ''
@@ -94,14 +132,6 @@ class Feature():
 			return True
 		else:
 			return False
-
-	def left(self):
-		# convert genbank 1-based indexing to standard 0-based
-		return nint(self.pairs[0][0]) - 1
-	
-	def right(self):
-		# convert genbank 1-based indexing to standard 0-based
-		return nint(self.pairs[-1][-1]) - 3
 
 	def is_joined(self):
 		if len(self.pairs) > 1:
@@ -155,30 +185,6 @@ class Feature():
 			location = 'complement(' + location + ')'
 		return location
 
-
-	def base_locations(self, full=False):
-		if full and self.partial() == 'left': 
-			for i in range(-((3 - self.length() % 3) % 3), 0, 1):
-				yield i
-		for left,right in self:
-			#left,right = map(int, [ item.replace('<','').replace('>','') for item in self.pair ] )
-			for i in range(left,right+1):
-				if i < self.locus.length():
-					yield i
-
-	def codon_locations(self):
-		assert self.type == 'CDS'
-		for triplet in grouper(self.base_locations(full=True), 3):
-			if triplet[0] >= 0:
-				yield triplet
-
-	def codons(self):
-		assert self.type == 'CDS'
-		for locations in self.codon_locations():
-			if self.strand > 0:
-				yield ''.join([self.locus.dna[loc] if loc else '' for loc in locations])
-			else:
-				yield rev_comp(''.join([self.locus.dna[loc] if loc else '' for loc in locations]))
 
 	def split(self):
 		a = copy.copy(self)

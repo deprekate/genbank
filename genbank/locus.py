@@ -8,6 +8,7 @@ from genbank.codons import Last
 from genbank.codons import Next
 from genbank.codons import Codons
 from genbank.feature import Feature
+from genbank.sequence import Seq
 from genbank.translate import Translate
 
 def rev_comp(dna):
@@ -31,7 +32,7 @@ def rmap(func, items):
 def recursive_map(func, items):
     return (recursive_map(func, x) if isinstance(x, tuple) else func(x) for x in items)
 
-
+'''
 class Seq(str):
 	# this is just to capture negative string indices as zero
 	def __getitem__(self, key):
@@ -40,6 +41,7 @@ class Seq(str):
 		elif isinstance(key, int) and key >= len(self):
 			return ''
 		return super().__getitem__(key)
+'''
 
 class Locus(dict):
 	def __init__(self, name='', dna=''):
@@ -80,8 +82,8 @@ class Locus(dict):
 		#	strand = self.strand
 		if left < 0:
 			left = None
-		#if right is None:
-		#	right = self.length() - 1
+		if right and right < 0:
+			right = 0
 		if strand and strand < 0:
 			return Seq(rev_comp(self.dna[left : right]))
 		else:
