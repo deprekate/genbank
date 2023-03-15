@@ -63,7 +63,8 @@ class Locus(dict):
 		cls.feature = feature
 
 	def name(self):
-		return self.groups['LOCUS'][0].split()[0]
+		#return self.groups['LOCUS'][0].split()[0]
+		return self.groups['LOCUS'][0].split(' ')[0]
 
 	def molecule(self):
 		if len(locus) > 2:
@@ -181,7 +182,7 @@ class Locus(dict):
 			self.write_gff3(outfile)
 
 	def write_gbk(self, outfile=sys.stdout):
-		for group,values in chain(self.groups.items(), [[None,[None]]] ):
+		for group,values in chain(self.groups.items(), [[None,[True, False]]] ):
 			for value in values:
 				if group == 'LOCUS':
 					outfile.write('LOCUS       ')
@@ -195,11 +196,11 @@ class Locus(dict):
 					else:
 						outfile.write('\n')
 					continue
-				elif group == 'FEATURES' or (not group and 'FEATURES' not in self.groups):
+				elif group == 'FEATURES' or (not group and value and 'FEATURES' not in self.groups):
 					outfile.write('FEATURES             Location/Qualifiers\n')
 					for feature in self:
 						feature.write(outfile)
-				elif group == 'ORIGIN' or (not group and 'ORIGIN' not in self.groups):
+				elif group == 'ORIGIN' or (not group and not value and 'ORIGIN' not in self.groups):
 					# should there be spaces after ORIGIN?
 					outfile.write('ORIGIN      ')
 					i = 0

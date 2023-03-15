@@ -49,7 +49,7 @@ if __name__ == "__main__":
 	if not args.get:
 		genbank = File(args.infile)
 	else:
-		raise Exception("not implemented yet")
+		#raise Exception("not implemented yet")
 		# not ready yet
 		accession,rettype = args.infile.split('.')
 		with urllib.request.urlopen('http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nuccore&id=' + accession + '&rettype=' + rettype + '&retmode=text') as response:
