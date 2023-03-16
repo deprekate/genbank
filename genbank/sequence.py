@@ -2,7 +2,7 @@ class Seq(str):
 	# this is just to capture negative string indices as zero
 	def __getitem__(self, key):
 		if isinstance(key, slice):
-			if key.stop < 0:
+			if key.stop and key.stop < 0:
 				key = slice(0, 0, key.step)
 			elif key.start < 0:
 				key = slice(0, key.stop, key.step)
