@@ -4,7 +4,7 @@ class Seq(str):
 		if isinstance(key, slice):
 			if key.stop and key.stop < 0:
 				key = slice(0, 0, key.step)
-			elif key.start < 0:
+			elif key.start and key.start < 0:
 				key = slice(0, key.stop, key.step)
 		elif isinstance(key, int) and key >= len(self):
 			return ''

@@ -32,16 +32,6 @@ def rmap(func, items):
 def recursive_map(func, items):
     return (recursive_map(func, x) if isinstance(x, tuple) else func(x) for x in items)
 
-'''
-class Seq(str):
-	# this is just to capture negative string indices as zero
-	def __getitem__(self, key):
-		if isinstance(key, slice) and key.start < 0:
-			key = slice(0, key.stop, key.step)
-		elif isinstance(key, int) and key >= len(self):
-			return ''
-		return super().__getitem__(key)
-'''
 
 class Locus(dict):
 	def __init__(self, name='', dna=''):
