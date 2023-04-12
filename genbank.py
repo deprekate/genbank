@@ -32,8 +32,7 @@ def nint(x):
 
 
 if __name__ == "__main__":
-	choices = 	['tabular','genbank','fasta', 'fna','faa', 'coverage','rarity','bases','gc','taxonomy','part', 'gff', 'gff3']
-
+	choices = 	['tabular','genbank','fasta', 'fna','faa', 'coverage','rarity','bases','gc','gcfp', 'taxonomy','part', 'gff', 'gff3']
 	usage = '%s [-opt1, [-opt2, ...]] infile' % __file__
 	parser = argparse.ArgumentParser(description='', formatter_class=RawTextHelpFormatter, usage=usage)
 	parser.add_argument('infile', type=is_valid_file, help='input file in genbank format')
@@ -138,11 +137,14 @@ if __name__ == "__main__":
 		for name,locus in genbank.items():
 			args.outfile.write(locus.seq(strand=strand))
 			args.outfile.write('\n')
-	elif args.format == 'gc':
+	elif args.format in ['gc','gcfp']:
 		for name,locus in genbank.items():
 			args.outfile.write(locus.name())
 			args.outfile.write('\t')
-			args.outfile.write(str(locus.gc_content()))
+			if args.format == 'gc':
+				args.outfile.write(str(locus.gc_content()))
+			else:
+				args.outfile.write(str(locus.gc_fp()))
 			args.outfile.write('\n')
 	elif args.format == 'taxonomy':
 		for name,locus in genbank.items():

@@ -163,6 +163,15 @@ class Locus(dict):
 		tbases += len(dna)
 		return cbases , tbases
 
+	def gc_fp(self):
+		fp = [0,0,0]
+		for feature in self.features(include=['CDS']):
+			for codon in feature.codons():
+				for i,base in enumerate(codon):
+					fp[i] += (ord(base) >> 1 ) & 3 % 2
+		return fp
+
+
 	def write(self, outfile=sys.stdout, args=None):
 		if not args or args.format == 'genbank':
 			self.write_gbk(outfile)
