@@ -171,6 +171,60 @@ class Locus(dict):
 					fp[i] += (ord(base) >> 1 ) & 3 % 2
 		return fp
 
+	def testcode(self):
+		pos = [
+				{ 'a': .22, 'c': .23, 'g': .08, 't': .09},
+				{ 'a': .20, 'c': .30, 'g': .08, 't': .09},
+				{ 'a': .34, 'c': .33, 'g': .16, 't': .20},
+				{ 'a': .45, 'c': .51, 'g': .27, 't': .54},
+				{ 'a': .68, 'c': .48, 'g': .48, 't': .44},
+				{ 'a': .58, 'c': .66, 'g': .53, 't': .69},
+				{ 'a': .93, 'c': .81, 'g': .64, 't': .68},
+				{ 'a': .84, 'c': .70, 'g': .74, 't': .91},
+				{ 'a': .68, 'c': .70, 'g': .88, 't': .97},
+				{ 'a': .94, 'c': .80, 'g': .90, 't': .97}
+				]
+		con = [
+				{ 'a': .21, 'c': .31, 'g': .29, 't': .58},
+				{ 'a': .81, 'c': .39, 'g': .33, 't': .51},
+				{ 'a': .65, 'c': .44, 'g': .41, 't': .69},
+				{ 'a': .67, 'c': .43, 'g': .41, 't': .56},
+				{ 'a': .49, 'c': .59, 'g': .73, 't': .75},
+				{ 'a': .62, 'c': .59, 'g': .64, 't': .55},
+				{ 'a': .55, 'c': .64, 'g': .64, 't': .40},
+				{ 'a': .44, 'c': .51, 'g': .47, 't': .39},
+				{ 'a': .49, 'c': .64, 'g': .54, 't': .24},
+				{ 'a': .28, 'c': .82, 'g': .40, 't': .28}
+				]
+		wp = {'a':.26,'c':.18,'g':.31,'t':.33}
+		wc = {'a':.11,'c':.12,'g':.15,'t':.14}
+		content = {
+		'a':[0,0,0],
+		'c':[0,0,0],
+		'g':[0,0,0],
+		't':[0,0,0]
+		}
+		for i,base in enumerate(self.seq()):
+			content[base][i%3] += 1
+		position = dict()
+		for base in 'acgt':
+			position[base] = max(content[base]) / (min(content[base])+1)
+		p = 0
+		for base in 'acgt':
+			n = int(str(position[base])[2]) if position[base] < 2 else 9
+			p += pos[n][base] * wp[base]
+		for base in 'acgt':
+			percent = sum(content[base]) / self.length()
+			n = int(str((percent-0.17) * 5 )[2])+1 if percent > 0.17 else 0
+			p += con[n][base] * wc[base]
+		if p <= 0.75:
+			return 'noncoding'
+		elif p < 0.95:
+			return 'no opinion'
+		else:
+			return 'coding'
+
+
 
 	def write(self, outfile=sys.stdout, args=None):
 		if not args or args.format == 'genbank':

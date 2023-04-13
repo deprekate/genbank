@@ -32,7 +32,7 @@ def nint(x):
 
 
 if __name__ == "__main__":
-	choices = 	['tabular','genbank','fasta', 'fna','faa', 'coverage','rarity','bases','gc','gcfp', 'taxonomy','part', 'gff', 'gff3']
+	choices = 	['tabular','genbank','fasta', 'fna','faa', 'coverage','rarity','bases','gc','gcfp', 'taxonomy','part', 'gff', 'gff3', 'testcode']
 	usage = '%s [-opt1, [-opt2, ...]] infile' % __file__
 	parser = argparse.ArgumentParser(description='', formatter_class=RawTextHelpFormatter, usage=usage)
 	parser.add_argument('infile', type=is_valid_file, help='input file in genbank format')
@@ -159,6 +159,12 @@ if __name__ == "__main__":
 				f.write('\n')
 				f.write(locus.seq())
 				f.write('\n')
+	elif args.format == 'testcode':
+		for name,locus in genbank.items():
+			args.outfile.write(locus.name())
+			args.outfile.write('\t')
+			args.outfile.write(locus.testcode())
+			args.outfile.write('\n')
 
 
 
