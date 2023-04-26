@@ -43,6 +43,7 @@ if __name__ == "__main__":
 	parser.add_argument('-r', '--revcomp', action="store_true")
 	parser.add_argument('-e', '--edit', help='This edits the given feature key with the value from the shell input via < new_keys.txt', type=str, default=None)
 	parser.add_argument('-k', '--key', help='Print the given keys [and qualifiers]', type=str, default=None)
+	parser.add_argument('-c', '--compare', help='Compares the CDS of two genbank files', type=str, default=None)
 	args = parser.parse_args()
 
 	if not args.get:
@@ -56,6 +57,29 @@ if __name__ == "__main__":
 				shutil.copyfileobj(response, tmp)
 				genbank = File(tmp.name)
 		
+	if args.compare:
+		perfect = partial = 0
+		compare = File(args.compare)
+		for (name,locus),( _ ,other) in zip(genbank.items(),compare.items()):
+			pairs = dict()
+			for feature in locus.features(include='CDS'):
+				if feature.strand > 0:
+					pairs[feature.pairs[-1][-1]] = feature.pairs[ 0][ 0]
+				else:
+					pairs[feature.pairs[ 0][ 0]] = feature.pairs[-1][-1]
+			for feature in other.features(include='CDS'):
+				if feature.strand > 0:
+					if feature.pairs[-1][-1] in pairs:
+						partial += 1
+						if feature.pairs[ 0][ 0] == pairs[feature.pairs[-1][-1]]:
+							perfect += 1
+				else:
+					if feature.pairs[ 0][ 0] in pairs:
+						partial += 1
+						if feature.pairs[-1][-1] == pairs[feature.pairs[ 0][ 0]]:
+							perfect += 1
+		print(partial, perfect, len(pairs))
+		exit()
 	if args.edit:
 		if not sys.stdin.isatty():
 			stdin = sys.stdin.readlines()
