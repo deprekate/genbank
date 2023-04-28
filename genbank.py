@@ -58,7 +58,7 @@ if __name__ == "__main__":
 				genbank = File(tmp.name)
 		
 	if args.compare:
-		perfect = partial = 0
+		perfect = partial = total = 0
 		compare = File(args.compare)
 		for (name,locus),( _ ,other) in zip(genbank.items(),compare.items()):
 			pairs = dict()
@@ -67,6 +67,7 @@ if __name__ == "__main__":
 					pairs[feature.pairs[-1][-1]] = feature.pairs[ 0][ 0]
 				else:
 					pairs[feature.pairs[ 0][ 0]] = feature.pairs[-1][-1]
+			total += len(pairs)
 			for feature in other.features(include='CDS'):
 				if feature.strand > 0:
 					if feature.pairs[-1][-1] in pairs:
@@ -78,7 +79,7 @@ if __name__ == "__main__":
 						partial += 1
 						if feature.pairs[-1][-1] == pairs[feature.pairs[ 0][ 0]]:
 							perfect += 1
-		print(partial, perfect, len(pairs))
+		print(partial,'(',partial/total,')', perfect, '(',perfect/total,')', total)
 		exit()
 	if args.edit:
 		if not sys.stdin.isatty():
