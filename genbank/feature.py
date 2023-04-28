@@ -78,14 +78,15 @@ class Feature():
 
 	def codons(self):
 		assert self.type == 'CDS'
+		dna = self.locus.seq()
 		if self.strand > 0:
 			for locations in self.codon_locations():
 				#yield ''.join([self.locus.dna[loc] if loc else '' for loc in locations])
-				yield self.locus.seq()[locations[0]:locations[2]+1]
+				yield dna[locations[0]:locations[2]+1]
 		else:
 			for locations in self.codon_locations():
 				#yield rev_comp(''.join([self.locus.dna[loc] if loc else '' for loc in locations]))
-				yield rev_comp(self.locus.seq()[ locations[0] : locations[2]+1 ])
+				yield rev_comp(dna[ locations[0] : locations[2]+1 ])
 
 	def fna(self):
 		return self.header() + self.seq() + "\n"
