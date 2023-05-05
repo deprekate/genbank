@@ -30,6 +30,11 @@ def is_valid_file(x):
 def nint(x):
     return int(x.replace('<','').replace('>',''))
 
+def _print(self, item):
+    if isinstance(item, str):
+        self.write(item)
+    else:
+        self.write(str(item))
 
 if __name__ == "__main__":
 	choices = 	['tabular','genbank','fasta', 'fna','faa', 'coverage','rarity','bases','gc','gcfp', 'taxonomy','part', 'gff', 'gff3', 'testcode']
@@ -41,10 +46,12 @@ if __name__ == "__main__":
 	parser.add_argument('-s', '--slice', help='This slices the infile at the specified coordinates. \nThe range can be in one of three different formats:\n    -s 0-99      (zero based string indexing)\n    -s 1..100    (one based GenBank indexing)\n    -s 50:+10    (an index and size of slice)', type=str, default=None)
 	parser.add_argument('-g', '--get', action="store_true")
 	parser.add_argument('-r', '--revcomp', action="store_true")
+	parser.add_argument('-a', '--add', help='This adds features the shell input via < features.txt', type=str, default=None)
 	parser.add_argument('-e', '--edit', help='This edits the given feature key with the value from the shell input via < new_keys.txt', type=str, default=None)
 	parser.add_argument('-k', '--key', help='Print the given keys [and qualifiers]', type=str, default=None)
 	parser.add_argument('-c', '--compare', help='Compares the CDS of two genbank files', type=str, default=None)
 	args = parser.parse_args()
+	args.outfile.print = _print.__get__(args.outfile)
 
 	if not args.get:
 		genbank = File(args.infile)
@@ -52,7 +59,8 @@ if __name__ == "__main__":
 		#raise Exception("not implemented yet")
 		# not ready yet
 		accession,rettype = args.infile.split('.')
-		with urllib.request.urlopen('http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nuccore&id=' + accession + '&rettype=' + rettype + '&retmode=text') as response:
+		url = 'http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nuccore&id=' + accession + '&rettype=' + rettype + '&retmode=text'
+		with urllib.request.urlopen(url) as response:
 			with tempfile.NamedTemporaryFile() as tmp:
 				shutil.copyfileobj(response, tmp)
 				genbank = File(tmp.name)
@@ -79,9 +87,40 @@ if __name__ == "__main__":
 						partial += 1
 						if feature.pairs[-1][-1] == pairs[feature.pairs[ 0][ 0]]:
 							perfect += 1
-		print(partial,'(',partial/total,')', perfect, '(',perfect/total,')', total)
+		args.outfile.print(partial)
+		args.outfile.print('\t')
+		args.outfile.print('(')
+		args.outfile.print(partial/total)
+		args.outfile.print(')')
+		args.outfile.print('\t')
+		args.outfile.print(perfect)
+		args.outfile.print('\t')
+		args.outfile.print('(')
+		args.outfile.print(perfect/total)
+		args.outfile.print(')')
+		args.outfile.print('\t')
+		args.outfile.print(total)
+		args.outfile.print('\n')
 		exit()
-	if args.edit:
+	if args.add:
+		# this only works for single sequence files
+		if not sys.stdin.isatty():
+			stdin = sys.stdin.readlines()
+		for locus in genbank:
+			for line in stdin:
+				if args.add == 'genbank':
+					pass
+				elif args.add == 'genemark':
+					if line.startswith(' ') and 'Gene' not in line and '#' not in line:
+						key = 'CDS'
+						n,strand,left,right,*_ = line.split()
+						locus.add_feature(key,strand,[[left,right]],{'note':['genemarkS']})
+				elif args.add == 'gff':
+					if not line.startswith('#'):
+						name,other,key,left,right,_,strand,_,tags = line.rstrip('\n').split('\t')
+						tags = dict((key,value) for tag in tags.split(';') for key,*value in [tag.split('=')])
+						locus.add_feature(key,strand,[[left,right]],tags)
+	elif args.edit:
 		if not sys.stdin.isatty():
 			stdin = sys.stdin.readlines()
 			#sys.stdin = open('/dev/tty')
@@ -116,65 +155,64 @@ if __name__ == "__main__":
 	if args.key:
 		key,qualifier = args.key.replace('/',':').split(':')
 		for feature in genbank.features(include=key):
-			args.outfile.write('\t'.join(feature.tags[qualifier]))
-			args.outfile.write("\n")
+			args.outfile.print('\t'.join(feature.tags[qualifier]))
+			args.outfile.print("\n")
 	elif args.format == 'genbank':
 		genbank.write(args.outfile)	
 	elif args.format == 'tabular':
 		for feature in genbank.features(include=['CDS']):
-			args.outfile.write(str(feature))
-			args.outfile.write("\t")
-			args.outfile.write(feature.seq())
-			args.outfile.write("\n")
+			args.outfile.print(feature)
+			args.outfile.print("\t")
+			args.outfile.print(feature.seq())
+			args.outfile.print("\n")
 	elif args.format in ['gff', 'gff3']:
 		for locus in genbank:
 			locus.write(args.outfile, args)
-
 	elif args.format in ['fna','faa']:
 		for name,locus in genbank.items():
 			for feature in locus.features(include=['CDS']):
-				args.outfile.write( getattr(feature, args.format)() )
+				args.outfile.print( getattr(feature, args.format)() )
 	elif args.format in ['fasta']:
 		for name,locus in genbank.items():
 			if args.revcomp:
 				locus.dna = locus.seq(strand=-1)
-			args.outfile.write( getattr(locus, args.format)() )
+			args.outfile.print( getattr(locus, args.format)() )
 	elif args.format == 'coverage':
 		cbases = tbases = 0
 		for name,locus in genbank.items():
 			c,t = locus.gene_coverage()
 			cbases += c
 			tbases += t
-		#args.outfile.write( name )
-		#args.outfile.write( '\t' )
-		args.outfile.write( str( cbases / tbases ) )
-		args.outfile.write( '\n' )
+		#args.outfile.print( name )
+		#args.outfile.print( '\t' )
+		args.outfile.print( cbases / tbases )
+		args.outfile.print( '\n' )
 	elif args.format == 'rarity':
 		rarity = dict()
 		for name,locus in genbank.items():
 			for codon,freq in sorted(locus.codon_rarity().items(), key=lambda item: item[1]):
-				args.outfile.write(codon)
-				args.outfile.write('\t')
-				args.outfile.write(str(round(freq,5)))
-				args.outfile.write('\n')
+				args.outfile.print(codon)
+				args.outfile.print('\t')
+				args.outfile.print(round(freq,5))
+				args.outfile.print('\n')
 	elif args.format == 'bases':
 		strand = -1 if args.revcomp else +1
 		for name,locus in genbank.items():
-			args.outfile.write(locus.seq(strand=strand))
-			args.outfile.write('\n')
+			args.outfile.print(locus.seq(strand=strand))
+			args.outfile.print('\n')
 	elif args.format in ['gc','gcfp']:
 		for name,locus in genbank.items():
-			args.outfile.write(locus.name())
-			args.outfile.write('\t')
+			args.outfile.print(locus.name())
+			args.outfile.print('\t')
 			if args.format == 'gc':
-				args.outfile.write(str(locus.gc_content()))
+				args.outfile.print(locus.gc_content())
 			else:
-				args.outfile.write(str(locus.gc_fp()))
-			args.outfile.write('\n')
+				args.outfile.print(locus.gc_fp())
+			args.outfile.print('\n')
 	elif args.format == 'taxonomy':
 		for name,locus in genbank.items():
-			args.outfile.write(locus.groups['SOURCE'][0].replace('\n','\t').replace('            ','').replace(';\t','; ') )
-			args.outfile.write('\n')
+			args.outfile.print(locus.groups['SOURCE'][0].replace('\n','\t').replace('            ','').replace(';\t','; ') )
+			args.outfile.print('\n')
 	elif args.format in ['part']:
 		folder = args.outfile.name if args.outfile.name != '<stdout>' else ''
 		for name,locus in genbank.items():
@@ -186,10 +224,10 @@ if __name__ == "__main__":
 				f.write('\n')
 	elif args.format == 'testcode':
 		for name,locus in genbank.items():
-			args.outfile.write(locus.name())
-			args.outfile.write('\t')
-			args.outfile.write(locus.testcode())
-			args.outfile.write('\n')
+			args.outfile.print(locus.name())
+			args.outfile.print('\t')
+			args.outfile.print(locus.testcode())
+			args.outfile.print('\n')
 
 
 
