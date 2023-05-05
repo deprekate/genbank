@@ -115,6 +115,11 @@ if __name__ == "__main__":
 						key = 'CDS'
 						n,strand,left,right,*_ = line.split()
 						locus.add_feature(key,strand,[[left,right]],{'note':['genemarkS']})
+				elif args.add == 'glimmer':
+					if not line.startswith('>'):
+						key = 'CDS'
+						n,left,right,(strand,*_),*_ = line.split()
+						locus.add_feature(key,strand,[[left,right]],{'note':['glimmer3']})
 				elif args.add == 'gff':
 					if not line.startswith('#'):
 						name,other,key,left,right,_,strand,_,tags = line.rstrip('\n').split('\t')
