@@ -409,10 +409,12 @@ class Locus(dict):
 			self.rarity = {a+b+c : 0 for a in 'acgt' for b in 'acgt' for c in 'acgt'}
 			for feature in self:
 				if feature.type == 'CDS':
-					for _codon, _loc in zip(feature.codons(), feature.codon_locations()):
-						if _codon in self.rarity and _loc not in seen[feature.strand]:
+					#for _codon, _loc in zip(feature.codons(), feature.codon_locations()):
+					#	if _codon in self.rarity and _loc not in seen[feature.strand]:
+					for _codon in feature.codons():
+						if _codon in self.rarity:
 							self.rarity[_codon] += 1
-							seen[feature.strand][_loc] = True
+					#		seen[feature.strand][_loc] = True
 		total = sum(self.rarity.values())
 		self.rarity = {codon:self.rarity[codon]/total for codon in self.rarity}
 		if codon in self.rarity:

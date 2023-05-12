@@ -76,7 +76,6 @@ class Feature():
 				dna = dna[:-remainder]
 			else:
 				dna = dna[remainder:]
-
 		for triplet in grouper(dna, 3):
 			yield ''.join(triplet)
 		return
