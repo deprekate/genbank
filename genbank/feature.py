@@ -51,42 +51,35 @@ class Feature():
 		return len(self.seq())
 
 	def seq(self):
-		seq = ''
-		for n in self.base_locations():
-			seq += self.locus.seq(n,n+1, self.strand)
+		seq = list()
+		for pair in self.pairs:
+			left,right = map(nint, pair)
+			seq.append(self.locus.seq(left-1,right, self.strand))
 		if self.strand > 0:
-			return seq
+			return ''.join(seq)
 		else:
-			return seq[::-1]
-
-	def base_locations(self, full=True):
-		#if full and self.partial() == 'left': 
-		if self.partial() == 'left': 
-			for i in range(-(self.frame()%3),0,1): #range(-((3 - self.frame() % 3) % 3), 0, 1):
-				yield i
-		for left,right in self:
-			#left,right = map(int, [ item.replace('<','').replace('>','') for item in self.pair ] )
-			for i in range(left,right+1):
-				if i < self.locus.length():
-					yield i
-
-	def codon_locations(self, full=True):
-		assert self.type == 'CDS'
-		for triplet in grouper(self.base_locations(full=True), 3):
-			#if triplet[0] >= 0:
-			yield triplet
+			return ''.join(seq[::-1])
 
 	def codons(self):
 		assert self.type == 'CDS'
-		dna = self.locus.seq()
-		if self.strand > 0:
-			for locations in self.codon_locations():
-				#yield ''.join([self.locus.dna[loc] if loc else '' for loc in locations])
-				yield dna[locations[0]:locations[2]+1]
-		else:
-			for locations in self.codon_locations():
-				#yield rev_comp(''.join([self.locus.dna[loc] if loc else '' for loc in locations]))
-				yield rev_comp(dna[ locations[0] : locations[2]+1 ])
+		dna = self.seq()
+		# should I return partial codons?
+		if self.partial() == 'left':
+			remainder = len(dna) % 3
+			if self.strand > 0:
+				dna = dna[remainder:]
+			else:
+				dna = dna[:-remainder]
+		if self.partial() == 'right':
+			remainder = len(dna) % 3
+			if self.strand > 0:
+				dna = dna[:-remainder]
+			else:
+				dna = dna[remainder:]
+
+		for triplet in grouper(dna, 3):
+			yield ''.join(triplet)
+		return
 
 	def fna(self):
 		return self.header() + self.seq() + "\n"
