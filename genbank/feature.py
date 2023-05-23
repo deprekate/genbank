@@ -71,6 +71,8 @@ class Feature():
 		assert self.type == 'CDS'
 		dna = self.seq()
 		loc = self.loc()
+		if self.strand < 0:
+			loc.reverse()
 		# should I return partial codons?
 		if self.partial() == 'left':
 			remainder = len(dna) % 3
