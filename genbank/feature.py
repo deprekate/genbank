@@ -60,25 +60,42 @@ class Feature():
 		else:
 			return ''.join(seq[::-1])
 
-	def codons(self):
+	def loc(self):
+		loc = list()
+		for pair in self.pairs:
+			left,right = map(nint, pair)
+			loc.extend(list(range(left-1,right)))
+		return loc
+	
+	def codons(self, loc=False):
 		assert self.type == 'CDS'
 		dna = self.seq()
+		loc = self.loc()
 		# should I return partial codons?
 		if self.partial() == 'left':
 			remainder = len(dna) % 3
 			if self.strand > 0:
 				dna = dna[remainder:]
+				loc = loc[remainder:]
 			else:
 				dna = dna[:-remainder]
+				loc = loc[:-remainder]
 		if self.partial() == 'right':
 			remainder = len(dna) % 3
 			if self.strand > 0:
 				dna = dna[:-remainder]
+				loc = loc[:-remainder]
 			else:
 				dna = dna[remainder:]
-		for triplet in grouper(dna, 3):
-			yield ''.join(triplet)
+				loc = loc[remainder:]
+		if not loc:
+			for triplet in grouper(dna, 3):
+				yield ''.join(triplet)
+		else:
+			for triplet,locs in zip(grouper(dna, 3), grouper(loc,3)):
+				yield ''.join(triplet), locs
 		return
+
 
 	def fna(self):
 		return self.header() + self.seq() + "\n"

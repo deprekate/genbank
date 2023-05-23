@@ -163,6 +163,8 @@ if __name__ == "__main__":
 			args.outfile.print('\t'.join(feature.tags[qualifier]))
 			args.outfile.print("\n")
 	elif args.format == 'genbank':
+		if args.revcomp:
+			raise Exception("not implemented yet")
 		genbank.write(args.outfile)	
 	elif args.format == 'tabular':
 		for feature in genbank.features(include=['CDS']):

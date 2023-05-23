@@ -1,3 +1,10 @@
+def rev_comp(dna):
+	a = 'acgtrykmbvdh'
+	b = 'tgcayrmkvbhd'
+	tab = str.maketrans(a,b)
+	return dna.translate(tab)[::-1]
+
+
 class Seq(str):
 	# this is just to capture negative string indices as zero
 	def __getitem__(self, key):
