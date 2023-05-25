@@ -104,6 +104,7 @@ if __name__ == "__main__":
 		exit()
 	if args.add:
 		# this only works for single sequence files
+		stdin = []
 		if not sys.stdin.isatty():
 			stdin = sys.stdin.readlines()
 		for locus in genbank:
@@ -118,8 +119,20 @@ if __name__ == "__main__":
 				elif args.add == 'glimmer':
 					if not line.startswith('>'):
 						key = 'CDS'
+						pairs = None
 						n,left,right,(strand,*_),*_ = line.split()
-						locus.add_feature(key,strand,[[left,right]],{'note':['glimmer3']})
+						if strand == '-':
+							left,right = right,left
+							if int(left) > int(right):
+								pairs = [[left,right]]
+							else:
+								pairs = [[left,str(locus.length())],['1',right]]
+						else:
+							if int(left) > int(right):
+								pairs = [[left,str(locus.length())],['1',right]]
+							else:
+								pairs = [[left,right]]
+						locus.add_feature(key,strand,pairs,{'note':['glimmer3']})
 				elif args.add == 'gff':
 					if not line.startswith('#'):
 						name,other,key,left,right,_,strand,_,tags = line.rstrip('\n').split('\t')
