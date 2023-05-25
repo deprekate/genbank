@@ -99,7 +99,7 @@ class Feature():
 			loc.reverse()
 		# should I return partial codons?
 		partial_type = self.partial()
-		remainder = len(dna) % 3
+		remainder = len(loc) % 3
 		if partial_type == 'left':
 			loc = loc[remainder:] if self.strand > 0 else loc[:-remainder]
 		elif partial_type == 'right':
