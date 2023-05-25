@@ -429,7 +429,7 @@ class Locus(dict):
 		self.dna = self.seq(left,right)
 		to_delete = list()
 		for feature in self.keys():
-			if feature.right() - 1 < left or feature.left() > right::
+			if feature.right() - 1 < left or feature.left() > right:
 				to_delete.append(feature)
 			else:
 				# whew there is a lot going on here
