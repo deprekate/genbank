@@ -9,7 +9,6 @@ import re
 import argparse
 import tempfile
 from collections import Counter
-from argparse import RawTextHelpFormatter
 from itertools import zip_longest, chain
 import shutil
 import tempfile
@@ -39,7 +38,7 @@ def _print(self, item):
 if __name__ == "__main__":
 	choices = 	['tabular','genbank','fasta', 'fna','faa', 'coverage','rarity','bases','gc','gcfp', 'taxonomy','part', 'gff', 'gff3', 'testcode']
 	usage = '%s [-opt1, [-opt2, ...]] infile' % __file__
-	parser = argparse.ArgumentParser(description='', formatter_class=RawTextHelpFormatter, usage=usage)
+	parser = argparse.ArgumentParser(description='', formatter_class=argparse.RawTextHelpFormatter, usage=usage)
 	parser.add_argument('infile', type=is_valid_file, help='input file in genbank format')
 	parser.add_argument('-o', '--outfile', action="store", default=sys.stdout, type=argparse.FileType('w'), help='where to write output [stdout]')
 	parser.add_argument('-f', '--format', help='Output the features in the specified format', type=str, default='genbank', choices=choices)
@@ -68,39 +67,23 @@ if __name__ == "__main__":
 	if args.compare:
 		perfect = partial = total = 0
 		compare = File(args.compare)
-		for (name,locus),( _ ,other) in zip(genbank.items(),compare.items()):
+		for (name,locus),(_,other) in zip(genbank.items(),compare.items()):
 			pairs = dict()
 			for feature in locus.features(include='CDS'):
-				if feature.strand > 0:
-					pairs[feature.pairs[-1][-1]] = feature.pairs[ 0][ 0]
-				else:
-					pairs[feature.pairs[ 0][ 0]] = feature.pairs[-1][-1]
+				start, end = feature.pairs[0][0], feature.pairs[-1][-1]
+				pairs[end] = start if feature.strand > 0 else end
 			total += len(pairs)
 			for feature in other.features(include='CDS'):
-				if feature.strand > 0:
-					if feature.pairs[-1][-1] in pairs:
-						partial += 1
-						if feature.pairs[ 0][ 0] == pairs[feature.pairs[-1][-1]]:
-							perfect += 1
-				else:
-					if feature.pairs[ 0][ 0] in pairs:
-						partial += 1
-						if feature.pairs[-1][-1] == pairs[feature.pairs[ 0][ 0]]:
-							perfect += 1
-		args.outfile.print(partial)
-		args.outfile.print('\t')
-		args.outfile.print('(')
-		args.outfile.print(partial/total)
-		args.outfile.print(')')
-		args.outfile.print('\t')
-		args.outfile.print(perfect)
-		args.outfile.print('\t')
-		args.outfile.print('(')
-		args.outfile.print(perfect/total)
-		args.outfile.print(')')
-		args.outfile.print('\t')
-		args.outfile.print(total)
-		args.outfile.print('\n')
+				start, end = feature.pairs[0][0], feature.pairs[-1][-1]
+				if feature.strand > 0 and end in pairs:
+					partial += 1
+					if start == pairs[end]:
+						perfect += 1
+				elif feature.strand <= 0 and start in pairs:
+					partial += 1
+					if end == pairs[start]:
+						perfect += 1
+		args.outfile.write(f"{partial}\t({partial/total})\t{perfect}\t({perfect/total})\t{total}\n")
 		exit()
 	if args.add:
 		# this only works for single sequence files
@@ -129,7 +112,7 @@ if __name__ == "__main__":
 				elif args.add == 'gff':
 					if not line.startswith('#'):
 						name,other,key,left,right,_,strand,_,tags = line.rstrip('\n').split('\t')
-						tags = dict((key,value) for tag in tags.split(';') for key,*value in [tag.split('=')])
+						tags = {key:val for tag in tags.split(';') for key,*val in [tag.split('=')]}
 						locus.add_feature(key,strand,[[left,right]],tags)
 	elif args.edit:
 		if not sys.stdin.isatty():
@@ -143,7 +126,7 @@ if __name__ == "__main__":
 	if args.slice:
 		if '..' in args.slice:
 			left,right = map(int, args.slice.split('..'))
-			left = left - 1
+			left -= 1
 		elif ':' in args.slice:
 			left,right = args.slice.split(':')
 			if '+' in right and '-' in right:
@@ -156,7 +139,7 @@ if __name__ == "__main__":
 			left,right = map(int, [left,right])
 		elif '-' in args.slice:
 			left,right = map(int, args.slice.split('-'))
-			right = right + 1
+			right += 1
 		else:
 			raise Exception("re-circularization not implemented yet")
 			left = int(args.slice)

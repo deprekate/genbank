@@ -62,8 +62,6 @@ class Locus(dict):
 		else:
 			return 'DNA'
 
-		
-
 	def fasta(self):
 		return ">" + self.name() + "\n" + self.seq() + "\n"
 
@@ -429,17 +427,18 @@ class Locus(dict):
 			left,right = right+1,left+1
 			self.strand = -1
 		self.dna = self.seq(left,right)
-		for feature in list(self.keys()):
-			if feature.right() - 1 < left:
-				del self[feature]
-			elif feature.left() > right:
-				del self[feature]
+		to_delete = list()
+		for feature in self.keys():
+			if feature.right() - 1 < left or feature.left() > right::
+				to_delete.append(feature)
 			else:
 				# whew there is a lot going on here
 				f0 = lambda x : int(x.replace('<','').replace('>',''))
 				f1 = lambda x : '<1' if f0(x) - left < 1 else ('>'+str(self.length()) if f0(x) - left > self.length() else f0(x) - left)
 				f2 = lambda x : str(f1(x))
 				feature.pairs = rmap(f2, feature.pairs)
+		for feature in to_delete:
+			del self[feature]
 		return self
 		
 

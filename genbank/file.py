@@ -49,9 +49,7 @@ class File(dict):
 
 	def parse_locus(self, fp):
 		locus = self.locus()
-		current = None
-		field = None
-		fasta = False
+		current = fasta = False
 		dna = []	
 		fp.seek(0)
 		for line in fp:
@@ -69,10 +67,11 @@ class File(dict):
 				elif line.startswith('//'):
 					break
 				else:
-					if group in locus.groups and locus.groups[group][-1]:
-						locus.groups[group].append(''.join(map(str,value)))
-					else:
-						locus.groups[group] = [''.join(map(str,value))]
+					locus.groups.setdefault(group, []).append(''.join(map(str, value)))
+					#if group in locus.groups and locus.groups[group][-1]:
+					#	locus.groups[group].append(''.join(map(str,value)))
+					#else:
+					#	locus.groups[group] = [''.join(map(str,value))]
 			elif group == 'ORIGIN':
 				#locus.dna += line.split(maxsplit=1)[1].rstrip().replace(' ','').lower()
 				dna.append( line.split(maxsplit=1)[1].rstrip().replace(' ','').lower() )
