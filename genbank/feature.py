@@ -50,6 +50,7 @@ class Feature():
 	def length(self):
 		return len(self.seq())
 
+	'''
 	def seq(self):
 		seq = list()
 		for pair in self.pairs:
@@ -59,13 +60,23 @@ class Feature():
 			return ''.join(seq)
 		else:
 			return ''.join(seq[::-1])
+	'''
+	def seq(self):
+		# lol this is chatgpts more optimized version
+		seq = [self.locus.seq(nint(pair[0]) - 1, nint(pair[1]), self.strand) for pair in self.pairs]
+		return ''.join(seq)[::-1] if self.strand < 0 else ''.join(seq)
 
+	'''
 	def loc(self):
 		loc = list()
 		for pair in self.pairs:
 			left,right = map(nint, pair)
 			loc.extend(list(range(left-1,right)))
 		return loc
+	'''
+	def loc(self):
+		# lol this is chatgpts more optimized version
+		return [val for pair in self.pairs for val in range(nint(pair[0])-1, nint(pair[1]))]
 	
 	def codons(self, loc=False):
 		assert self.type == 'CDS'
@@ -74,28 +85,17 @@ class Feature():
 		if self.strand < 0:
 			loc.reverse()
 		# should I return partial codons?
-		if self.partial() == 'left':
-			remainder = len(dna) % 3
-			if self.strand > 0:
-				dna = dna[remainder:]
-				loc = loc[remainder:]
-			else:
-				dna = dna[:-remainder]
-				loc = loc[:-remainder]
-		if self.partial() == 'right':
-			remainder = len(dna) % 3
-			if self.strand > 0:
-				dna = dna[:-remainder]
-				loc = loc[:-remainder]
-			else:
-				dna = dna[remainder:]
-				loc = loc[remainder:]
-		if not loc:
-			for triplet in grouper(dna, 3):
-				yield ''.join(triplet)
-		else:
-			for triplet,locs in zip(grouper(dna, 3), grouper(loc,3)):
-				yield ''.join(triplet), locs
+		partial_type = self.partial()
+		remainder = len(dna) % 3
+		if partial_type == 'left':
+			dna = dna[remainder:] if self.strand > 0 else dna[:-remainder]
+			loc = loc[remainder:] if self.strand > 0 else loc[:-remainder]
+		elif partial_type == 'right':
+			dna = dna[:-remainder] if self.strand > 0 else dna[remainder:]
+			loc = loc[:-remainder] if self.strand > 0 else loc[remainder:]
+
+		for triplet, locs in zip(grouper(dna, 3), grouper(loc, 3)) if loc else zip(grouper(dna, 3)):
+			yield ''.join(triplet), locs if loc else ''.join(triplet)
 		return
 
 
