@@ -81,6 +81,19 @@ class Feature():
 	def codons(self, loc=False):
 		assert self.type == 'CDS'
 		dna = self.seq()
+		# should I return partial codons?
+		partial_type = self.partial()
+		remainder = len(dna) % 3
+		if partial_type == 'left':
+			dna = dna[remainder:] if self.strand > 0 else dna[:-remainder]
+		elif partial_type == 'right':
+			dna = dna[:-remainder] if self.strand > 0 else dna[remainder:]
+		for triplet in grouper(dna, 3):
+			yield ''.join(triplet)
+		return
+
+	def codon_locations(self):
+		assert self.type == 'CDS'
 		loc = self.loc()
 		if self.strand < 0:
 			loc.reverse()
@@ -88,14 +101,11 @@ class Feature():
 		partial_type = self.partial()
 		remainder = len(dna) % 3
 		if partial_type == 'left':
-			dna = dna[remainder:] if self.strand > 0 else dna[:-remainder]
 			loc = loc[remainder:] if self.strand > 0 else loc[:-remainder]
 		elif partial_type == 'right':
-			dna = dna[:-remainder] if self.strand > 0 else dna[remainder:]
 			loc = loc[:-remainder] if self.strand > 0 else loc[remainder:]
-
-		for triplet, locs in zip(grouper(dna, 3), grouper(loc, 3)) if loc else zip(grouper(dna, 3)):
-			yield ''.join(triplet), locs if loc else ''.join(triplet)
+		for locs in grouper(loc, 3):
+			yield locs[(1 >> 1) * -2]
 		return
 
 
