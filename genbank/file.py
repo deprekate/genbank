@@ -42,10 +42,8 @@ class File(dict):
 				yield feature
 	
 	def dna(self):
-		dna = ""
-		for locus in self.values():
-			dna += locus.dna
-		return dna
+		dna = [locus.dna for locus in self.values()]
+		return "".join(dna)
 
 	def parse_locus(self, fp):
 		locus = self.locus()

@@ -25,6 +25,7 @@ class Feature():
 		self.strand = strand
 		# tuplize the pairs
 		self.pairs = tuple([tuple(pair) for pair in pairs])
+		print(self.pairs)
 		self.locus = locus
 		self.tags = tags if tags else dict()
 		#self.dna = ''
@@ -63,7 +64,7 @@ class Feature():
 	'''
 	def seq(self):
 		# lol this is chatgpts more optimized version
-		seq = [self.locus.seq(nint(pair[0]) - 1, nint(pair[1]), self.strand) for pair in self.pairs]
+		seq = [self.locus.seq(nint(pair[0]) - 1, nint(pair[-1]), self.strand) for pair in self.pairs]
 		return ''.join(seq)[::-1] if self.strand < 0 else ''.join(seq)
 
 	'''
@@ -76,7 +77,8 @@ class Feature():
 	'''
 	def loc(self):
 		# lol this is chatgpts more optimized version
-		return [val for pair in self.pairs for val in range(nint(pair[0])-1, nint(pair[1]))]
+		#return [val for pair in self.pairs for val in range(nint(pair[0])-1, nint(pair[1]))]
+		return [val for pair in self.pairs for val in range(nint(pair[0])-1, nint(pair[-1]))]
 	
 	def codons(self, loc=False):
 		assert self.type == 'CDS'
@@ -160,6 +162,7 @@ class Feature():
 			return True
 		return False
 
+	'''
 	def __iter__(self):
 		for left,*right in self.pairs:
 			if right:
@@ -167,7 +170,7 @@ class Feature():
 			else:
 				right = left
 			yield nint(left)-1 , nint(right)-1
-
+	'''
 	def __str__(self):
 		"""Compute the string representation of the feature."""
 		return "%s\t%s\t%s\t%s" % (

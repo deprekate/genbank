@@ -43,7 +43,7 @@ class Translate:
 					'n':'n',
 					'r':'y','y':'r','s':'s','w':'w','k':'m','m':'k',
 					'b':'v','v':'b','d':'h','h':'d'}
-		return "".join([seq_dict[base] for base in reversed(seq)])
+		return "".join(seq_dict[base] for base in reversed(seq))
 
 	def codon(self, codon):
 		if len(codon) == 3:
