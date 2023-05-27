@@ -25,7 +25,6 @@ class Feature():
 		self.strand = strand
 		# tuplize the pairs
 		self.pairs = tuple([tuple(pair) for pair in pairs])
-		print(self.pairs)
 		self.locus = locus
 		self.tags = tags if tags else dict()
 		#self.dna = ''
