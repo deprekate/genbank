@@ -67,7 +67,7 @@ if __name__ == "__main__":
 	if args.compare:
 		perfect = partial = total = 0
 		compare = File(args.compare)
-		for (name,locus),(_,other) in zip(genbank.items(),compare.items()):
+		for locus,other in zip(genbank,compare):
 			pairs = dict()
 			for feature in locus.features(include='CDS'):
 				start, end = feature.pairs[0][0], feature.pairs[-1][-1]
@@ -144,7 +144,7 @@ if __name__ == "__main__":
 			raise Exception("re-circularization not implemented yet")
 			left = int(args.slice)
 			right = left+1
-		for name,locus in genbank.items():
+		for locus in genbank:
 			locus = locus.slice(left,right)
 	if args.key:
 		key,qualifier = args.key.replace('/',':').split(':')
@@ -165,17 +165,17 @@ if __name__ == "__main__":
 		for locus in genbank:
 			locus.write(args.outfile, args)
 	elif args.format in ['fna','faa']:
-		for name,locus in genbank.items():
+		for locus in genbank:
 			for feature in locus.features(include=['CDS']):
 				args.outfile.print( getattr(feature, args.format)() )
 	elif args.format in ['fasta']:
-		for name,locus in genbank.items():
+		for locus in genbank:
 			if args.revcomp:
 				locus.dna = locus.seq(strand=-1)
 			args.outfile.print( getattr(locus, args.format)() )
 	elif args.format == 'coverage':
 		cbases = tbases = 0
-		for name,locus in genbank.items():
+		for locus in genbank:
 			c,t = locus.gene_coverage()
 			cbases += c
 			tbases += t
@@ -185,7 +185,7 @@ if __name__ == "__main__":
 		args.outfile.print( '\n' )
 	elif args.format == 'rarity':
 		rarity = dict()
-		for name,locus in genbank.items():
+		for locus in genbank:
 			for codon,freq in sorted(locus.codon_rarity().items(), key=lambda item: item[1]):
 				args.outfile.print(codon)
 				args.outfile.print('\t')
@@ -193,11 +193,11 @@ if __name__ == "__main__":
 				args.outfile.print('\n')
 	elif args.format == 'bases':
 		strand = -1 if args.revcomp else +1
-		for name,locus in genbank.items():
+		for locus in genbank:
 			args.outfile.print(locus.seq(strand=strand))
 			args.outfile.print('\n')
 	elif args.format in ['gc','gcfp']:
-		for name,locus in genbank.items():
+		for locus in genbank:
 			args.outfile.print(locus.name())
 			args.outfile.print('\t')
 			if args.format == 'gc':
@@ -206,20 +206,20 @@ if __name__ == "__main__":
 				args.outfile.print(locus.gc_fp())
 			args.outfile.print('\n')
 	elif args.format == 'taxonomy':
-		for name,locus in genbank.items():
+		for locus in genbank:
 			args.outfile.print(locus.groups['SOURCE'][0].replace('\n','\t').replace('            ','').replace(';\t','; ') )
 			args.outfile.print('\n')
 	elif args.format in ['part']:
 		folder = args.outfile.name if args.outfile.name != '<stdout>' else ''
-		for name,locus in genbank.items():
+		for locus in genbank:
 			with open(os.path.join(folder,name + '.fna'), 'w') as f:
 				f.write('>')
-				f.write(name)
+				f.write(locus.name())
 				f.write('\n')
 				f.write(locus.seq())
 				f.write('\n')
 	elif args.format == 'testcode':
-		for name,locus in genbank.items():
+		for locus in genbank:
 			args.outfile.print(locus.name())
 			args.outfile.print('\t')
 			args.outfile.print(locus.testcode())
