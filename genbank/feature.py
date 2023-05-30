@@ -89,6 +89,9 @@ class Feature():
 			dna = dna[remainder:] if self.strand > 0 else dna[:-remainder]
 		elif partial_type == 'right':
 			dna = dna[:-remainder] if self.strand > 0 else dna[remainder:]
+		if len(dna) % 3:
+			# not sure how to handle bad features
+			dna = ''
 		for triplet in grouper(dna, 3):
 			yield ''.join(triplet)
 		return
@@ -105,6 +108,9 @@ class Feature():
 			loc = loc[remainder:] if self.strand > 0 else loc[:-remainder]
 		elif partial_type == 'right':
 			loc = loc[:-remainder] if self.strand > 0 else loc[remainder:]
+		if len(loc) % 3:
+			# not sure how to handle bad features
+			loc = []
 		for locs in grouper(loc, 3):
 			yield locs
 		return
