@@ -61,10 +61,11 @@ class Feature():
 		else:
 			return ''.join(seq[::-1])
 	'''
+
 	def seq(self):
 		# lol this is chatgpts more optimized version
 		seq = [self.locus.seq(nint(pair[0]) - 1, nint(pair[-1]), self.strand) for pair in self.pairs]
-		return ''.join(seq)[::-1] if self.strand < 0 else ''.join(seq)
+		return ''.join(seq) if self.strand > 0 else ''.join(seq[::-1])
 
 	'''
 	def loc(self):
@@ -76,7 +77,6 @@ class Feature():
 	'''
 	def loc(self):
 		# lol this is chatgpts more optimized version
-		#return [val for pair in self.pairs for val in range(nint(pair[0])-1, nint(pair[1]))]
 		return [val for pair in self.pairs for val in range(nint(pair[0])-1, nint(pair[-1]))]
 	
 	def codons(self, loc=False):
@@ -106,7 +106,7 @@ class Feature():
 		elif partial_type == 'right':
 			loc = loc[:-remainder] if self.strand > 0 else loc[remainder:]
 		for locs in grouper(loc, 3):
-			yield locs[(1 >> 1) * -2]
+			yield locs
 		return
 
 
