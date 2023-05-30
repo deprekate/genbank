@@ -19,12 +19,12 @@ class File(dict):
 				# FASTA
 				if line.startswith(b'>') and temp.tell() > 1:
 					locus = self.parse_locus(temp)
-					self[locus.name()] = locus
+					self[locus] = True
 				temp.write(line)
 				# GENBANK
 				if line.startswith(b'//'):
 					locus = self.parse_locus(temp)
-					self[locus.name()] = locus
+					self[locus] = True 
 		temp.close()
 	
 	def __init_subclass__(cls, locus, **kwargs):
@@ -32,9 +32,11 @@ class File(dict):
 		super().__init_subclass__(**kwargs)
 		cls.locus = locus
 
+	'''
 	def __iter__(self):
 		# hopefully this doesnt break stuff
 		return iter(self.values())
+	'''
 
 	def features(self, include=None, exclude=None):
 		for locus in self.values():

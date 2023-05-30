@@ -43,9 +43,15 @@ class Locus(dict):
 		self.translate = Translate()
 		self.strand = 1
 		self.groups = dict()
-		self.groups['LOCUS'] = [name.replace(' ','')]
+		self.groups['LOCUS'] = [name.replace(' ','')] if name else []
 		#self.groups['FEATURES'] = ['']
 		#self.groups['ORIGIN'] = ['']
+		
+	def __eq__(self, other):
+		return (self == other)
+
+	def __hash__(self):
+		return id(self)
 
 	def __init_subclass__(cls, feature=Feature, **kwargs):
 		'''this method allows for a Feature class to be modified through inheritance in other code '''
@@ -53,8 +59,7 @@ class Locus(dict):
 		cls.feature = feature
 
 	def name(self):
-		#return self.groups['LOCUS'][0].split()[0]
-		return self.groups['LOCUS'][0].split(' ')[0]
+		return self.groups['LOCUS'][0].split()[0]
 
 	def molecule(self):
 		if len(locus) > 2:
@@ -440,9 +445,6 @@ class Locus(dict):
 		for feature in to_delete:
 			del self[feature]
 		return self
-		
 
 
-
-		
 
