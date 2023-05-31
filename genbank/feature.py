@@ -134,7 +134,7 @@ class Feature():
 		return header + "\n"
 
 	def hypothetical(self):
-		function = self.tags['product'] if 'product' in self.tags else ''
+		function = ''.join(self.tags['product']).lower() if 'product' in self.tags else ''
 		if 'hypot'  in function or \
 		   'etical' in function or \
 		   'unchar' in function or \
