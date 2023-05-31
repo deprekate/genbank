@@ -59,7 +59,7 @@ class Locus(dict):
 		cls.feature = feature
 
 	def name(self):
-		return self.groups['LOCUS'][0].split()[0]
+		return self.groups['LOCUS'][0].split(' ')[0]
 
 	def molecule(self):
 		if len(locus) > 2:
