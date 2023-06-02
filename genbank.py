@@ -70,19 +70,22 @@ if __name__ == "__main__":
 		for locus,other in zip(genbank,compare):
 			pairs = dict()
 			for feature in locus.features(include='CDS'):
-				start, end = feature.pairs[0][0], feature.pairs[-1][-1]
-				pairs[end] = start if feature.strand > 0 else end
+				if feature.strand > 0:
+					pairs[feature.pairs[-1][-1]] = feature.pairs[ 0][ 0]
+				else:
+					pairs[feature.pairs[ 0][ 0]] = feature.pairs[-1][-1]
 			total += len(pairs)
 			for feature in other.features(include='CDS'):
-				start, end = feature.pairs[0][0], feature.pairs[-1][-1]
-				if feature.strand > 0 and end in pairs:
-					partial += 1
-					if start == pairs[end]:
-						perfect += 1
-				elif feature.strand <= 0 and start in pairs:
-					partial += 1
-					if end == pairs[start]:
-						perfect += 1
+				if feature.strand > 0:
+					if feature.pairs[-1][-1] in pairs:
+						partial += 1
+						if feature.pairs[ 0][ 0] == pairs[feature.pairs[-1][-1]]:
+							perfect += 1
+				else:
+					if feature.pairs[ 0][ 0] in pairs:
+						partial += 1
+						if feature.pairs[-1][-1] == pairs[feature.pairs[ 0][ 0]]:
+							perfect += 1
 		args.outfile.write(f"{partial}\t({partial/total})\t{perfect}\t({perfect/total})\t{total}\n")
 		exit()
 	if args.add:
