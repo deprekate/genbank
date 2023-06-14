@@ -65,7 +65,7 @@ if __name__ == "__main__":
 				genbank = File(tmp.name)
 		
 	if args.compare:
-		perfect = partial = total = 0
+		perfect = partial = total = fp = 0
 		compare = File(args.compare)
 		for locus,other in zip(genbank,compare):
 			pairs = dict()
@@ -81,12 +81,18 @@ if __name__ == "__main__":
 						partial += 1
 						if feature.pairs[ 0][ 0] == pairs[feature.pairs[-1][-1]]:
 							perfect += 1
+						del pairs[feature.pairs[-1][-1]]
+					else:
+						fp += 1
 				else:
 					if feature.pairs[ 0][ 0] in pairs:
 						partial += 1
 						if feature.pairs[-1][-1] == pairs[feature.pairs[ 0][ 0]]:
 							perfect += 1
-		args.outfile.write(f"{partial}\t({partial/total})\t{perfect}\t({perfect/total})\t{total}\n")
+						del pairs[feature.pairs[ 0][ 0]]
+					else:
+						fp += 1
+		args.outfile.write(f"{partial}\t({partial/total})\t{perfect}\t({perfect/total})\t{total}\t{fp}\n")
 		exit()
 	if args.add:
 		# this only works for single sequence files
