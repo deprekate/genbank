@@ -84,6 +84,7 @@ if __name__ == "__main__":
 						del pairs[feature.pairs[-1][-1]]
 					else:
 						fp += 1
+						print(feature)
 				else:
 					if feature.pairs[ 0][ 0] in pairs:
 						partial += 1
@@ -92,6 +93,7 @@ if __name__ == "__main__":
 						del pairs[feature.pairs[ 0][ 0]]
 					else:
 						fp += 1
+						print(feature)
 		args.outfile.write(f"{partial}\t({partial/total})\t{perfect}\t({perfect/total})\t{total}\t{fp}\n")
 		exit()
 	if args.add:
@@ -103,24 +105,41 @@ if __name__ == "__main__":
 			for line in stdin:
 				if args.add == 'genbank':
 					pass
-				elif args.add == 'genemark':
+				elif args.add == 'genemarks':
 					if line.startswith(' ') and 'Gene' not in line and '#' not in line:
-						key = 'CDS'
 						n,strand,left,right,*_ = line.split()
-						locus.add_feature(key,strand,[[left,right]],{'note':['genemarkS']})
+						locus.add_feature('CDS',strand,[[left,right]],{'note':['genemarkS']})
+				elif args.add == 'genemark':
+					if line.startswith(' ') and (' direct ' in line or ' complement ' in line):
+						left,right,strand,*_ = line.split()
+						strand = '+' if ('direct' in line or '+' in line) else '-'
+						locus.add_feature('CDS',strand,[[left,right]],{'note':['genemark']})
 				elif args.add == 'glimmer':
 					if not line.startswith('>'):
-						key = 'CDS'
 						n,left,right,(strand,*_),*_ = line.split()
 						if strand == '-':
 							left, right = right, left
 							pairs = [[left, right]] if int(left) > int(right) else [[left, str(locus.length())], ['1', right]]
 						else:
 							pairs = [[left, right]] if int(left) > int(right) else [[left, right]]
-						locus.add_feature(key,strand,pairs,{'note':['glimmer3']})
+						locus.add_feature('CDS',strand,pairs,{'note':['glimmer3']})
+				elif args.add == 'fgenesb':
+					if line.startswith(' ') and '  CDS  ' in line:
+						n,_,_,_,_,strand,key,left,_,right,score = line.rstrip('\n').split()
+						locus.add_feature(key,strand,[[left,right]],{'note':['fgenesb']})
+				elif args.add == 'metageneannotator':
+					if not line.startswith('#') and not line.startswith(' ') and len(line) > 2:
+						_,left,right,strand,*_ = line.rstrip('\n').split('\t')
+						locus.add_feature('CDS',strand,[[left,right]],{'note':['metageneannotator']})
 				elif args.add == 'gff':
-					if not line.startswith('#'):
-						name,other,key,left,right,_,strand,_,tags = line.rstrip('\n').split('\t')
+					if not line.startswith('#') and len(line) > 2:
+						try:
+							name,other,key,left,right,_,strand,_,tags,*_ = line.rstrip('\n').split('\t')
+						except:
+							print('Error:')
+							print(line)
+							exit()
+						key = key[:14]
 						tags = {key:val for tag in tags.split(';') for key,*val in [tag.split('=')]}
 						locus.add_feature(key,strand,[[left,right]],tags)
 	elif args.edit:

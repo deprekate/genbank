@@ -129,7 +129,7 @@ class Locus(dict):
 	def add_feature(self, key, strand, pairs, tags=dict()):
 		"""Add a feature to the factory."""
 		#feature = self.feature
-		strand = 44 - ord(strand) if strand in ['+','-'] else int(strand)
+		strand = 44 - ord(strand) if strand in ['+','-'] else 0 if strand in ['.'] else int(strand)
 		feature = self.feature(key, strand, pairs, self, tags=tags)
 		if feature not in self:
 			self[feature] = len(self)
