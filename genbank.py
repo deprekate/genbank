@@ -67,6 +67,9 @@ if __name__ == "__main__":
 	if args.compare:
 		perfect = partial = total = fp = 0
 		compare = File(args.compare)
+		partial = dict()
+		perfect = dict()
+		mistake = dict()
 		for locus,other in zip(genbank,compare):
 			pairs = dict()
 			for feature in locus.features(include='CDS'):
@@ -76,25 +79,20 @@ if __name__ == "__main__":
 					pairs[feature.pairs[ 0][ 0]] = feature.pairs[-1][-1]
 			total += len(pairs)
 			for feature in other.features(include='CDS'):
-				if feature.strand > 0:
-					if feature.pairs[-1][-1] in pairs:
-						partial += 1
-						if feature.pairs[ 0][ 0] == pairs[feature.pairs[-1][-1]]:
-							perfect += 1
-						del pairs[feature.pairs[-1][-1]]
-					else:
-						fp += 1
-						print(feature)
+				start,stop = feature.pairs[ 0][ 0],feature.pairs[-1][-1]
+				if feature.strand < 0:
+					stop,start = start,stop
+				if stop in pairs:
+					partial[stop] = True
+					if start == pairs[stop]:
+						perfect[stop] = True
 				else:
-					if feature.pairs[ 0][ 0] in pairs:
-						partial += 1
-						if feature.pairs[-1][-1] == pairs[feature.pairs[ 0][ 0]]:
-							perfect += 1
-						del pairs[feature.pairs[ 0][ 0]]
-					else:
-						fp += 1
-						print(feature)
-		args.outfile.write(f"{partial}\t({partial/total})\t{perfect}\t({perfect/total})\t{total}\t{fp}\n")
+					mistake[stop] = True
+					#print(feature)
+		partial = len(partial)
+		perfect = len(perfect)
+		mistake = len(mistake)
+		args.outfile.write(f"{partial}\t{partial/total}\t{perfect}\t{perfect/total}\t{total}\t{mistake}\n")
 		exit()
 	if args.add:
 		# this only works for single sequence files
@@ -114,6 +112,8 @@ if __name__ == "__main__":
 						left,right,strand,*_ = line.split()
 						strand = '+' if ('direct' in line or '+' in line) else '-'
 						locus.add_feature('CDS',strand,[[left,right]],{'note':['genemark']})
+					elif line.startswith('List of Regions of interest'):
+						break
 				elif args.add == 'glimmer':
 					if not line.startswith('>'):
 						n,left,right,(strand,*_),*_ = line.split()
@@ -140,7 +140,7 @@ if __name__ == "__main__":
 							print(line)
 							exit()
 						key = key[:14]
-						tags = {key:val for tag in tags.split(';') for key,*val in [tag.split('=')]}
+						tags = {key: ['"%s"' % '='.join(val)] for tag in tags.split(';') for key,*val in [tag.split('=')]}
 						locus.add_feature(key,strand,[[left,right]],tags)
 	elif args.edit:
 		if not sys.stdin.isatty():
