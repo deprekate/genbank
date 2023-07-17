@@ -123,14 +123,6 @@ if __name__ == "__main__":
 						else:
 							pairs = [[left, right]] if int(left) > int(right) else [[left, right]]
 						locus.add_feature('CDS',strand,pairs,{'note':['glimmer3']})
-				elif args.add == 'fgenesb':
-					if line.startswith(' ') and '  CDS  ' in line:
-						n,_,_,_,_,strand,key,left,_,right,score = line.rstrip('\n').split()
-						locus.add_feature(key,strand,[[left,right]],{'note':['fgenesb']})
-				elif args.add == 'metageneannotator':
-					if not line.startswith('#') and not line.startswith(' ') and len(line) > 2:
-						_,left,right,strand,*_ = line.rstrip('\n').split('\t')
-						locus.add_feature('CDS',strand,[[left,right]],{'note':['metageneannotator']})
 				elif args.add == 'gff':
 					if not line.startswith('#') and len(line) > 2:
 						try:
@@ -142,6 +134,15 @@ if __name__ == "__main__":
 						key = key[:14]
 						tags = {key: ['"%s"' % '='.join(val)] for tag in tags.split(';') for key,*val in [tag.split('=')]}
 						locus.add_feature(key,strand,[[left,right]],tags)
+				else:
+					if not line.startswith('#') and len(line) > 2:
+						mapping = dict()
+						for key,val in zip(args.add.split(','),line.split()):
+							mapping[key] = val
+						left,right,strand = [mapping[key] for key in ['left','right','strand']]
+						locus.add_feature('CDS',strand,[[left,right]],{})
+							
+
 	elif args.edit:
 		if not sys.stdin.isatty():
 			stdin = sys.stdin.readlines()

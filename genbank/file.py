@@ -39,7 +39,7 @@ class File(dict):
 	'''
 
 	def features(self, include=None, exclude=None):
-		for locus in self.values():
+		for locus in self:
 			for feature in locus.features(include=include):
 				yield feature
 	
