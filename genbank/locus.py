@@ -160,9 +160,10 @@ class Locus(dict):
 		seen = dict()
 		for feature in self.features(include=['CDS','tRNA']):
 			#for locations in feature.codon_locations():
-			for location in feature.base_locations():
-				if location:
-					dna[location-1] = True
+			for locations in feature.codon_locations():
+				for location in locations:
+					if location:
+						dna[location-1] = True
 		cbases += sum(dna)
 		tbases += len(dna)
 		return cbases , tbases

@@ -116,12 +116,16 @@ if __name__ == "__main__":
 						break
 				elif args.add == 'glimmer':
 					if not line.startswith('>'):
-						n,left,right,(strand,*_),*_ = line.split()
+						_,left,right,(strand,*_),*_ = line.split()
 						if strand == '-':
 							left, right = right, left
-							pairs = [[left, right]] if int(left) > int(right) else [[left, str(locus.length())], ['1', right]]
+						if int(left) > int(right):
+							if strand == '-':
+								pairs = [['1', right], [left, str(locus.length())]]
+							else:
+								pairs = [[left, str(locus.length())], ['1', right]]
 						else:
-							pairs = [[left, right]] if int(left) > int(right) else [[left, right]]
+							pairs = [[left,right]]
 						locus.add_feature('CDS',strand,pairs,{'note':['glimmer3']})
 				elif args.add == 'gff':
 					if not line.startswith('#') and len(line) > 2:
