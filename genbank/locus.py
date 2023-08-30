@@ -8,6 +8,7 @@ from genbank.codons import Last
 from genbank.codons import Next
 from genbank.codons import Codons
 from genbank.feature import Feature
+from genbank.feature import grouper
 from genbank.sequence import Seq
 from genbank.translate import Translate
 
@@ -16,6 +17,7 @@ def rev_comp(dna):
 	b = 'tgcayrmkvbhd'
 	tab = str.maketrans(a,b)
 	return dna.translate(tab)[::-1]
+
 
 def nint(s):
 	return int(s.replace('<','').replace('>',''))
@@ -156,18 +158,17 @@ class Locus(dict):
 	def gene_coverage(self):
 		''' This calculates the protein coding gene coverage, which should be around 1 '''
 		cbases = tbases = 0	
-		dna = [False] * len(self.dna)
-		seen = dict()
+		index = [ [False] * len(self.dna) , [False] * len(self.dna)]
 		for feature in self.features(include=['CDS','tRNA']):
-			#for locations in feature.codon_locations():
-			for locations in feature.codon_locations():
+			for locations in grouper(feature.loc(), 3):
 				for location in locations:
 					if location:
-						dna[location-1] = True
-		cbases += sum(dna)
-		tbases += len(dna)
+						index[(feature.strand >> 1) * -1][location-1] = True
+					break
+		cbases += sum([item for sublist in index for item in sublist])
+		tbases += len(self.dna) / 3
 		return cbases , tbases
-
+	
 	def gc_fp(self):
 		fp = [0,0,0]
 		for feature in self.features(include=['CDS']):
