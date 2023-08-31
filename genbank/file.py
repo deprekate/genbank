@@ -8,6 +8,11 @@ from genbank.locus import Locus
 
 class File(dict):
 	def __init__(self, filename=None):
+
+		self.formats = 	['genbank','gff', 'gff3','tabular',
+						 'fasta', 'fna','faa','bases',
+						 'coverage', 'rarity', 'gc', 'gcfp', 'taxonomy','part',
+						 'testcode']
 		if not hasattr(self, 'locus'):
 			self.locus = Locus
 		''' use tempfiles since using next inside a for loop is easier'''
