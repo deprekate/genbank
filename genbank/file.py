@@ -10,7 +10,7 @@ from genbank.locus import Locus
 class File(dict):
 	formats = ['genbank','gff', 'gff3','tabular',
 			   'fasta', 'fna','faa','bases',
-			   'coverage', 'rarity', 'gc', 'gcfp', 'taxonomy','part',
+			   'coverage', 'rarity', 'gc', 'gcfp', 'taxonomy','split',
 			   'testcode']
 	def __init__(self, filename=None):
 		if not hasattr(self, 'locus'):
@@ -97,7 +97,6 @@ class File(dict):
 						current.tags.setdefault(tag, []).append(None)
 			else:
 				locus.groups[group][-1] += line
-
 		locus.dna = ''.join(dna)
 		fp.seek(0)
 		if fp.writable():

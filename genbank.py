@@ -129,7 +129,7 @@ if __name__ == "__main__":
 				elif args.add == 'gff':
 					if not line.startswith('#') and len(line) > 2:
 						try:
-							name,other,key,left,right,_,strand,_,tags,*_ = line.rstrip('\n').split('\t')
+							_,_,key,left,right,_,strand,_,tags,*_ = line.rstrip('\n').split('\t')
 						except:
 							print('Error:')
 							print(line)
@@ -144,7 +144,6 @@ if __name__ == "__main__":
 							mapping[key] = val
 						left,right,strand = [mapping[key] for key in ['left','right','strand']]
 						locus.add_feature('CDS',strand,[[left,right]],{})
-							
 
 	elif args.edit:
 		if not sys.stdin.isatty():
@@ -162,8 +161,7 @@ if __name__ == "__main__":
 		elif ':' in args.slice:
 			left,right = args.slice.split(':')
 			if '+' in right and '-' in right:
-				left = eval(left + right)
-				right = eval(left + right)
+				left = right = eval(left + right)
 			elif '+' in right:
 				right = eval(left + right)
 			elif '-' in right:
@@ -186,25 +184,30 @@ if __name__ == "__main__":
 	elif args.format == 'genbank':
 		if args.revcomp:
 			raise Exception("not implemented yet")
-		genbank.write(args.outfile)	
-	elif args.format == 'tabular':
-		for feature in genbank.features(include=['CDS']):
-			args.outfile.print(feature)
-			args.outfile.print("\t")
-			args.outfile.print(feature.seq())
-			args.outfile.print("\n")
-	elif args.format in ['gff', 'gff3']:
+		genbank.write(args)	
+	elif args.format in ['fna','faa','gff', 'gff3','tabular']:
 		for locus in genbank:
-			locus.write(args.outfile, args)
-	elif args.format in ['fna','faa']:
-		for locus in genbank:
-			for feature in locus.features(include=['CDS']):
-				args.outfile.print( getattr(feature, args.format)() )
+			locus.write(args)
 	elif args.format in ['fasta']:
+		# ONCE THE REVCOMP IS IMPLEMENTED FOR GENBANK MOST OF THESE
+		# FORMATS WILL CONDENSE INTO A SINGLE BLOCK
 		for locus in genbank:
 			if args.revcomp:
 				locus.dna = locus.seq(strand=-1)
-			args.outfile.print( getattr(locus, args.format)() )
+			locus.write(args)
+	elif args.format == 'bases':
+		strand = -1 if args.revcomp else +1
+		for locus in genbank:
+			args.outfile.print(locus.seq(strand=strand))
+			args.outfile.print('\n')
+	elif args.format == 'rarity':
+		rarity = dict()
+		for locus in genbank:
+			for codon,freq in sorted(locus.codon_rarity().items(), key=lambda item: item[1]):
+				args.outfile.print(codon)
+				args.outfile.print('\t')
+				args.outfile.print(round(freq,5))
+				args.outfile.print('\n')
 	elif args.format == 'coverage':
 		cbases = tbases = 0
 		for locus in genbank:
@@ -215,19 +218,6 @@ if __name__ == "__main__":
 		#args.outfile.print( '\t' )
 		args.outfile.print( cbases / tbases )
 		args.outfile.print( '\n' )
-	elif args.format == 'rarity':
-		rarity = dict()
-		for locus in genbank:
-			for codon,freq in sorted(locus.codon_rarity().items(), key=lambda item: item[1]):
-				args.outfile.print(codon)
-				args.outfile.print('\t')
-				args.outfile.print(round(freq,5))
-				args.outfile.print('\n')
-	elif args.format == 'bases':
-		strand = -1 if args.revcomp else +1
-		for locus in genbank:
-			args.outfile.print(locus.seq(strand=strand))
-			args.outfile.print('\n')
 	elif args.format in ['gc','gcfp']:
 		for locus in genbank:
 			args.outfile.print(locus.name())
@@ -239,9 +229,11 @@ if __name__ == "__main__":
 			args.outfile.print('\n')
 	elif args.format == 'taxonomy':
 		for locus in genbank:
-			args.outfile.print(locus.groups['SOURCE'][0].replace('\n','\t').replace('            ','').replace(';\t','; ') )
-			args.outfile.print('\n')
-	elif args.format in ['part']:
+			if 'SOURCE' in locus.groups:
+				s = locus.groups['SOURCE'][0].replace('\n','\t').replace(' '*12,'').replace(';\t','; ')
+				args.outfile.print(s)
+				args.outfile.print('\n')
+	elif args.format in ['split']:
 		folder = args.outfile.name if args.outfile.name != '<stdout>' else ''
 		for locus in genbank:
 			with open(os.path.join(folder,name + '.fna'), 'w') as f:

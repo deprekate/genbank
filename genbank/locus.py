@@ -18,7 +18,6 @@ def rev_comp(dna):
 	tab = str.maketrans(a,b)
 	return dna.translate(tab)[::-1]
 
-
 def nint(s):
 	return int(s.replace('<','').replace('>',''))
 
@@ -68,9 +67,6 @@ class Locus(dict):
 			return locus[3]
 		else:
 			return 'DNA'
-
-	def fasta(self):
-		return ">" + self.name() + "\n" + self.seq() + "\n"
 
 	def seq(self, left=0, right=None, strand=None):
 		# this should always refer to zero based indexing
@@ -178,6 +174,8 @@ class Locus(dict):
 		return fp
 
 	def testcode(self):
+		# THIS IS A REIMPLEMENTATION OF THE ORIGINAL TESTCODE METHOD 
+		# BY FICKET 1982
 		pos = [
 				{ 'a': .22, 'c': .23, 'g': .08, 't': .09},
 				{ 'a': .20, 'c': .30, 'g': .08, 't': .09},
@@ -230,17 +228,17 @@ class Locus(dict):
 		else:
 			return 'coding'
 
+	def write(self, args):
+		getattr(self, args.format)(args.outfile)
 
+	def fasta(self, outfile):
+		outfile.write(">")
+		outfile.write(self.name())
+		outfile.write("\n")
+		outfile.write(self.seq())
+		outfile.write("\n")
 
-	def write(self, outfile=sys.stdout, args=None):
-		if not args or args.format == 'genbank':
-			self.write_gbk(outfile)
-		elif args.format == 'gff':
-			self.write_gff(outfile)
-		elif args.format == 'gff3':
-			self.write_gff3(outfile)
-
-	def write_gbk(self, outfile=sys.stdout):
+	def genbank(self, outfile=sys.stdout):
 		for group,values in chain(self.groups.items(), [[None,[True, False]]] ):
 			for value in values:
 				if group == 'LOCUS':
@@ -286,7 +284,7 @@ class Locus(dict):
 		outfile.write('//')
 		outfile.write('\n')
 
-	def write_gff3(self, outfile=sys.stdout):
+	def gff3(self, outfile=sys.stdout):
 		outfile.write('>Feature')
 		outfile.write(' ') # should this be a space or a tab?
 		outfile.write(self.name())
@@ -318,13 +316,13 @@ class Locus(dict):
 					outfile.write("\t")
 					if value is None:
 						pass
-					elif value[0] == '"' and value[-1] == '"':
+					elif isinstance(value,str) and value[0] == '"' and value[-1] == '"':
 						outfile.write(value[1:-1])
 					else:
-						outfile.write(value)
+						outfile.write(str(value))
 			outfile.write("\n")
 
-	def write_gff(self, outfile=sys.stdout):
+	def gff(self, outfile=sys.stdout):
 		outfile.write("##gff-version 3\n")
 		for feature in self:
 			outfile.write(self.name())
@@ -345,7 +343,7 @@ class Locus(dict):
 			else:
 				outfile.write('.')
 			outfile.write("\t")
-			outfile.write(str(feature.strand).replace('-1','-').replace('1','+'))
+			outfile.write(str(feature.strand).replace('-1','-').replace('1','+').replace('0','+') )
 			outfile.write("\t")
 			outfile.write(".")
 			outfile.write("\t")
@@ -354,15 +352,29 @@ class Locus(dict):
 					outfile.write(str(tag))
 					if value is None:
 						pass
-					elif value[0] == '"' and value[-1] == '"':
+					elif isinstance(value,str) and value[0] == '"' and value[-1] == '"':
 						outfile.write("=")
 						outfile.write(value[1:-1])
 					else:
 						outfile.write("=")
-						outfile.write(value)
-				outfile.write(";")
+						outfile.write(str(value))
+					outfile.write(";")
 			outfile.write("\n")
 
+	def fna(self, outfile=sys.stdout):
+		for feature in self.features(include=['CDS']):
+			outfile.print( feature.fna() )
+
+	def faa(self, outfile=sys.stdout):
+		for feature in self.features(include=['CDS']):
+			outfile.print( feature.faa() )
+
+	def tabular(self, outfile=sys.stdout):
+		for feature in self: #.features(include=['CDS']):
+			outfile.print(feature)
+			outfile.print("\t")
+			outfile.print(feature.seq())
+			outfile.print("\n")
 
 	def last(self, n, codons, strand):
 		# this needs to be 0-based indexing
@@ -373,7 +385,6 @@ class Locus(dict):
 			irange = range(n,            -1, -3)
 		else:
 			irange = range(n, self.length(), +3)
-
 		for i in irange:
 			if self.seq(i,i+3,strand) in codons:
 				return i

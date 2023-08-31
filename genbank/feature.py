@@ -17,7 +17,6 @@ def grouper(iterable, n, fillvalue=None):
 def nint(s):
 	return int(s.replace('<','').replace('>',''))
 
-
 class Feature():
 	def __init__(self, type_, strand, pairs, locus, tags=None):
 		#super().__init__(locus.locus, locus.dna)
@@ -115,7 +114,6 @@ class Feature():
 			yield locs
 		return
 
-
 	def fna(self):
 		return self.header() + self.seq() + "\n"
 
@@ -128,7 +126,7 @@ class Feature():
 			if tag != 'translation':
 				for value in values:
 					if value:
-						header += " [" + tag + "=" + value +"]"
+						header += " [" + tag + "=" + str(value) +"]"
 					else:
 						header += " [" + tag +"]"
 		return header + "\n"
