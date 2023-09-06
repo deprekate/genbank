@@ -76,7 +76,7 @@ phiX174	1.1168
 ```
 ---
 You can also *slice* the locus to a specified range and only the nucleotides and
-features that occur within the slice are kept. The command to take the first
+features that occur within the slice are kept. The command to take the first two
 hundred bases of the phiX174 genome is shown below. 
 ```bash
 $ genbank.py tests/phiX174.gbk --slice 1..200
