@@ -100,7 +100,7 @@ $ genbank.py tests/phiX174.gbk --slice 1..200 -f coverage
 0.51
 ```
 ---
-You can easily edit features by running multiple commands.
+You can also easily edit features by running multiple commands.
 
 Print out the features of a specified **key**:**tag** into a file
 ```
