@@ -74,6 +74,25 @@ MFGAIAGGIASALAGGAMSKLFGGGQKAASGGIQGDVLATDNNTVGMGDAG
 $ genbank.py tests/phiX174.gbk -f coverage
 phiX174	1.1168
 ```
+You can also *slice* the locus to a specified range, where only the nucleotides and 
+features that occur in the slice are kept. The command to take the first hundred bases
+of the phiX174 genome is shown below. 
+```
+$ genbank.py tests/phiX174.gbk -s 1..200
+LOCUS       phiX174                  200 bp    DNA             PHG
+DEFINITION  phiX174
+FEATURES             Location/Qualifiers
+     rep_origin      13..56
+     CDS             100..>200
+                     /gene="G"
+                     /note="merged"
+ORIGIN
+        1 gtgtgaggtt ataacgccga agcggtaaaa attttaattt ttgccgctga ggggttgacc
+       61 aagcgaagcg cggtaggttt tctgcttagg agtttaatca tgtttcagac ttttatttct
+      121 cgccataatt caaacttttt ttctgataag ctggttctca cttctgttac tccagcttct
+      181 tcggcacctg ttttacagac
+//
+```
 Print out the features of the given **key**:**tag**
 ```
 $ genbank.py tests/phiX174.gbk -k CDS:gene > labels.tsv
