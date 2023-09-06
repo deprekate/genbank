@@ -72,7 +72,7 @@ MFGAIAGGIASALAGGAMSKLFGGGQKAASGGIQGDVLATDNNTVGMGDAG
 >phiX174_CDS_[1659..3227] [gene="A"]
 
 $ genbank.py tests/phiX174.gbk -f coverage
-phiX174	0.965
+phiX174	1.1168
 ```
 Print out the features of the given **key**:**tag**
 ```
