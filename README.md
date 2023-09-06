@@ -79,7 +79,7 @@ You can also *slice* the locus to a specified range and only the nucleotides and
 features that occur within the slice are kept. The command to take the first
 hundred bases of the phiX174 genome is shown below. 
 ```bash
-$ genbank.py tests/phiX174.gbk -s 1..200
+$ genbank.py tests/phiX174.gbk --slice 1..200
 LOCUS       phiX174                  200 bp    DNA             PHG
 DEFINITION  phiX174
 FEATURES             Location/Qualifiers
@@ -96,7 +96,7 @@ ORIGIN
 ```
 The *slice* arguement can be paired with all the other output format options:
 ```bash
-$ genbank.py tests/phiX174.gbk -s 1..200 -f coverage
+$ genbank.py tests/phiX174.gbk --slice 1..200 -f coverage
 0.51
 ```
 ---
