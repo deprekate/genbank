@@ -85,12 +85,14 @@ class File(dict):
 			elif not line.startswith(' '):
 				# ITS A NEW MAIN GROUP
 				group,*value = line.split(maxsplit=1)
+				'''
 				if line.startswith('>'):
 					locus.groups['LOCUS'] = [group[1:]]
 					fasta = True
 				elif fasta:
 					dna.append( line.rstrip().replace(' ','').lower() )
-				elif line.startswith('//'):
+				'''
+				if line.startswith('//'):
 					break
 				else:
 					locus.groups.setdefault(group, []).append(''.join(map(str, value)))
