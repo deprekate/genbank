@@ -44,7 +44,8 @@ class Locus(dict):
 		self.translate = Translate()
 		self.strand = 1
 		self.groups = dict()
-		self.groups['LOCUS'] = [name.replace(' ','')] if name else []
+		#self.groups['LOCUS'] = [name.replace(' ','')] if name else []
+		self.groups['LOCUS'] = [name] if name else []
 		#self.groups['FEATURES'] = ['']
 		#self.groups['ORIGIN'] = ['']
 		
@@ -59,8 +60,12 @@ class Locus(dict):
 		super().__init_subclass__(**kwargs)
 		cls.feature = feature
 
-	def name(self):
-		return self.groups['LOCUS'][0].split(' ')[0]
+	def name(self, name=None):
+		if not name:
+			name = self.groups['LOCUS'][0]
+			name = name.split(' ')[0] if ' ' in name else name
+			return name
+		self.groups['LOCUS'] = [name]
 
 	def molecule(self):
 		if len(locus) > 2:
@@ -363,18 +368,18 @@ class Locus(dict):
 
 	def fna(self, outfile=sys.stdout):
 		for feature in self.features(include=['CDS']):
-			outfile.print( feature.fna() )
+			outfile.write( feature.fna() )
 
 	def faa(self, outfile=sys.stdout):
 		for feature in self.features(include=['CDS']):
-			outfile.print( feature.faa() )
+			outfile.write( feature.faa() )
 
 	def tabular(self, outfile=sys.stdout):
 		for feature in self: #.features(include=['CDS']):
-			outfile.print(feature)
-			outfile.print("\t")
-			outfile.print(feature.seq())
-			outfile.print("\n")
+			outfile.write(str(feature))
+			outfile.write("\t")
+			outfile.write(feature.seq())
+			outfile.write("\n")
 
 	def last(self, n, codons, strand):
 		# this needs to be 0-based indexing

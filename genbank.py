@@ -179,7 +179,7 @@ if __name__ == "__main__":
 	if args.key:
 		key,qualifier = args.key.replace('/',':').split(':')
 		for feature in genbank.features(include=key):
-			args.outfile.print('\t'.join(feature.tags[qualifier]))
+			args.outfile.print('\t'.join(feature.tags.get(qualifier,'')))
 			args.outfile.print("\n")
 	elif args.format == 'genbank':
 		if args.revcomp:

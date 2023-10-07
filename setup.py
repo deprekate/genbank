@@ -13,7 +13,7 @@ from distutils import sysconfig
 sources = ""
 
 module = Extension('genbank',
-			language='c',
+			language='gcc',
 			extra_compile_args=[''],
 			extra_link_args=[''],
 			include_dirs=[
@@ -21,7 +21,8 @@ module = Extension('genbank',
 						 '...',
 						 os.path.join(os.getcwd(), 'include'),
 			],
-			sources = ["./src/"+item for item in sources.split()]
+			#sources = ["./src/"+item for item in sources.split()]
+			sources = ["./src/metagenome.c"]
 			)
 
 def readme():

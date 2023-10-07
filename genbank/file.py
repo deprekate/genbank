@@ -12,19 +12,40 @@ class File(dict):
 			   'fasta', 'fna','faa','bases',
 			   'coverage', 'rarity', 'gc', 'gcfp', 'taxonomy','split',
 			   'testcode']
+
+	def __iter__(self):
+		if self.__len__():
+			yield from self.keys()
+		else:
+			# this iterates over fasta files holding only one read in memory 
+			locus = self.locus()
+			lib = gzip if self.filename.endswith(".gz") else io
+			with lib.open(self.filename, mode="rb") as fp:
+				line = next(fp)
+				locus.name(line.decode().rstrip())
+				for line in fp:
+					if line.startswith(b'>'):
+						yield locus
+						locus.name(line.decode().rstrip())
+						locus.dna = ''
+					else:
+						locus.dna += line.decode().rstrip()
+				yield locus
+
 	def __init__(self, filename=None):
+		self.filename = filename
 		if not hasattr(self, 'locus'):
 			self.locus = Locus
 		''' use tempfiles since using next inside a for loop is easier'''
 		temp = tempfile.TemporaryFile()
-		
 		lib = gzip if filename.endswith(".gz") else io
 		with lib.open(filename, mode="rb") as fp:
-			for line in chain(fp, [b'>']):
+			for line in fp: #chain(fp, [b'>']):
 				# FASTA
 				if line.startswith(b'>') and temp.tell() > 1:
-					locus = self.parse_locus(temp)
-					self[locus] = True
+					#locus = self.parse_locus(temp)
+					#self[locus] = True
+					return
 				temp.write(line)
 				# GENBANK
 				if line.startswith(b'//'):
@@ -48,9 +69,9 @@ class File(dict):
 			for feature in locus.features(include=include):
 				yield feature
 	
-	def dna(self):
-		dna = [locus.dna for locus in self.values()]
-		return "".join(dna)
+	def seq(self):
+		seq = [locus.seq() for locus in self]
+		return "".join(seq)
 
 	def parse_locus(self, fp):
 		locus = self.locus()
