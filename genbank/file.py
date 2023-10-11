@@ -22,14 +22,14 @@ class File(dict):
 			lib = gzip if self.filename.endswith(".gz") else io
 			with lib.open(self.filename, mode="rb") as fp:
 				line = next(fp)
-				locus.name(line.decode().rstrip())
+				locus.name(line.decode().rstrip()[1:])
 				for line in fp:
 					if line.startswith(b'>'):
 						yield locus
-						locus.name(line.decode().rstrip())
+						locus.name(line.decode().rstrip()[1:])
 						locus.dna = ''
 					else:
-						locus.dna += line.decode().rstrip()
+						locus.dna += line.decode().rstrip().lower()
 				yield locus
 
 	def __init__(self, filename=None):
