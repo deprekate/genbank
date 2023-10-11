@@ -17,6 +17,7 @@ class File(dict):
 		if self.__len__():
 			yield from self.keys()
 		else:
+			dna = []
 			# this iterates over fasta files holding only one read in memory 
 			locus = self.locus()
 			lib = gzip if self.filename.endswith(".gz") else io
@@ -25,11 +26,13 @@ class File(dict):
 				locus.name(line.decode().rstrip()[1:])
 				for line in fp:
 					if line.startswith(b'>'):
+						locus.dna = ''.join(dna)
 						yield locus
 						locus.name(line.decode().rstrip()[1:])
-						locus.dna = ''
+						dna = []
 					else:
-						locus.dna += line.decode().rstrip().lower()
+						dna.append(line.decode().rstrip().lower())
+				locus.dna = ''.join(dna)
 				yield locus
 
 	def __init__(self, filename=None):
