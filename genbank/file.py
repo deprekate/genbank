@@ -10,7 +10,7 @@ from genbank.locus import Locus
 class File(dict):
 	formats = ['genbank','gff', 'gff3','tabular',
 			   'fasta', 'fna','faa','bases',
-			   'coverage', 'rarity', 'gc', 'gcfp', 'taxonomy','split',
+			   'coverage', 'rarity', 'gc', 'gcfp', 'taxonomy',
 			   'testcode']
 
 	def __iter__(self):

@@ -43,6 +43,7 @@ if __name__ == "__main__":
 	parser.add_argument('-f', '--format', help='Output the features in the specified format', type=str, default='genbank', choices=File.formats)
 	parser.add_argument('-s', '--slice', help='This slices the infile at the specified coordinates. \nThe range can be in one of three different formats:\n    -s 0-99      (zero based string indexing)\n    -s 1..100    (one based GenBank indexing)\n    -s 50:+10    (an index and size of slice)', type=str, default=None)
 	parser.add_argument('-g', '--get', action="store_true")
+	parser.add_argument('-d', '--divvy', action="store_true", help='used to divvy a File with multiple loci into individual files' )
 	parser.add_argument('-r', '--revcomp', action="store_true")
 	parser.add_argument('-a', '--add', help='This adds features the shell input via < features.txt', type=str, default=None)
 	parser.add_argument('-e', '--edit', help='This edits the given feature key with the value from the shell input via < new_keys.txt', type=str, default=None)
@@ -181,6 +182,15 @@ if __name__ == "__main__":
 		for feature in genbank.features(include=key):
 			args.outfile.print('\t'.join(feature.tags.get(qualifier,'')))
 			args.outfile.print("\n")
+	elif args.divvy:
+		folder = args.outfile.name if args.outfile.name != '<stdout>' else ''
+		_,ext = os.path.splitext(args.infile)
+		if os.path.getsize(folder) == 0:
+			os.remove(folder)
+			os.makedirs(folder)
+		for locus in genbank:
+			args.outfile = open(os.path.join(folder, locus.name() + ext ), 'w')
+			locus.write(args)
 	elif args.format == 'genbank':
 		if args.revcomp:
 			raise Exception("not implemented yet")
@@ -233,15 +243,6 @@ if __name__ == "__main__":
 				s = locus.groups['SOURCE'][0].replace('\n','\t').replace(' '*12,'').replace(';\t','; ')
 				args.outfile.print(s)
 				args.outfile.print('\n')
-	elif args.format in ['split']:
-		folder = args.outfile.name if args.outfile.name != '<stdout>' else ''
-		for locus in genbank:
-			with open(os.path.join(folder,name + '.fna'), 'w') as f:
-				f.write('>')
-				f.write(locus.name())
-				f.write('\n')
-				f.write(locus.seq())
-				f.write('\n')
 	elif args.format == 'testcode':
 		for locus in genbank:
 			args.outfile.print(locus.name())
