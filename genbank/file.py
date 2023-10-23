@@ -11,7 +11,7 @@ class File(dict):
 	formats = ['genbank','gff', 'gff3','tabular',
 			   'fasta', 'fna','faa','bases',
 			   'coverage', 'rarity', 'gc', 'gcfp', 'taxonomy',
-			   'testcode']
+			   'testcode', 'check']
 
 	def __iter__(self):
 		if self.__len__():

@@ -268,4 +268,21 @@ class Feature():
 					outfile.write('                     ')
 					outfile.write('/' + str(tag))
 					outfile.write('\n')
+	'''
+	def integrity_check(self):
+		seq2 = self.translation()
+		if 'translation' not in self.tags:
+			return 1 - ( seq2.count('#') + seq2.count('*') + seq2.count('+') ) / len(seq2)
+		else:
+			seq1 = self.tags['translation']
+			seq1,seq2 = mask(seq1, seq2)
+			seq1,seq2 = (seq1[1:], seq2[1:])
+			return max(
+					fuzz.ratio(seq1, seq2),
+					fuzz.ratio(seq1, seq2.replace('*', 'W'))
+					) / 100
+	'''
+
+
+
 

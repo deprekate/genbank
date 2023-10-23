@@ -14,6 +14,7 @@ import shutil
 import tempfile
 import urllib.request
 import fileinput
+from thefuzz import fuzz
 
 sys.path.pop(0)
 from genbank.file import File
@@ -249,6 +250,16 @@ if __name__ == "__main__":
 			args.outfile.print('\t')
 			args.outfile.print(locus.testcode())
 			args.outfile.print('\n')
+	elif args.format == 'check':
+		for locus in genbank:
+			for feature in locus.features(include='CDS'):
+				if feature.frame('left') != feature.frame('right') and not feature.is_joined():
+					args.outfile.print(feature.pairs)
+				if 'translation' in feature.tags:
+					tag = feature.tags['translation'][0].replace(' ','').replace('"','')[1:]
+					trans = feature.translation()[1:-1]
+					if fuzz.ratio(tag, trans) < 80:
+						args.outfile.print(feature.pairs)
 
 
 
