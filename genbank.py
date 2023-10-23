@@ -254,12 +254,14 @@ if __name__ == "__main__":
 		for locus in genbank:
 			for feature in locus.features(include='CDS'):
 				if feature.frame('left') != feature.frame('right') and not feature.is_joined():
-					args.outfile.print(feature.pairs)
+					args.outfile.print(feature)
+					args.outfile.print('\n')
 				if 'translation' in feature.tags:
 					tag = feature.tags['translation'][0].replace(' ','').replace('"','')[1:]
 					trans = feature.translation()[1:-1]
 					if fuzz.ratio(tag, trans) < 80:
-						args.outfile.print(feature.pairs)
+						args.outfile.print(feature)
+						args.outfile.print('\n')
 
 
 
