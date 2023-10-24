@@ -253,7 +253,8 @@ if __name__ == "__main__":
 	elif args.format == 'check':
 		for locus in genbank:
 			for feature in locus.features(include='CDS'):
-				if feature.frame('left') != feature.frame('right') and not feature.is_joined():
+				#if feature.frame('left') != feature.frame('right') and not feature.is_joined():
+				if not next(feature.codon_locations(), None):
 					args.outfile.print(feature)
 					args.outfile.print('\n')
 				if 'translation' in feature.tags:
