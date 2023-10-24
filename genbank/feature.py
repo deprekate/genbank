@@ -84,9 +84,9 @@ class Feature():
 		# should I return partial codons?
 		partial_type = self.partial()
 		remainder = len(dna) % 3
-		if partial_type == 'left':
+		if partial_type == 'left' and remainder:
 			dna = dna[remainder:] if self.strand > 0 else dna[:-remainder]
-		elif partial_type == 'right':
+		elif partial_type == 'right' and remainder:
 			dna = dna[:-remainder] if self.strand > 0 else dna[remainder:]
 		if len(dna) % 3:
 			# not sure how to handle bad features
@@ -103,9 +103,9 @@ class Feature():
 		# should I return partial codons?
 		partial_type = self.partial()
 		remainder = len(loc) % 3
-		if partial_type == 'left':
+		if partial_type == 'left' and remainder:
 			loc = loc[remainder:] if self.strand > 0 else loc[:-remainder]
-		elif partial_type == 'right':
+		elif partial_type == 'right' and remainder:
 			loc = loc[:-remainder] if self.strand > 0 else loc[remainder:]
 		if len(loc) % 3:
 			# not sure how to handle bad features
