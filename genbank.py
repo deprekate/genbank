@@ -14,7 +14,6 @@ import shutil
 import tempfile
 import urllib.request
 import fileinput
-from thefuzz import fuzz
 
 sys.path.pop(0)
 from genbank.file import File
@@ -101,6 +100,7 @@ if __name__ == "__main__":
 		if not sys.stdin.isatty():
 			stdin = sys.stdin.readlines()
 		for locus in genbank:
+			# you have to add one feature to make the locus permanant iter
 			for line in stdin:
 				if args.add == 'genbank':
 					pass
@@ -146,8 +146,8 @@ if __name__ == "__main__":
 							mapping[key] = val
 						left,right,strand = [mapping[key] for key in ['left','right','strand']]
 						locus.add_feature('CDS',strand,[[left,right]],{})
-
-	elif args.edit:
+			genbank[locus] = True
+	if args.edit:
 		if not sys.stdin.isatty():
 			stdin = sys.stdin.readlines()
 			#sys.stdin = open('/dev/tty')
@@ -251,6 +251,10 @@ if __name__ == "__main__":
 			args.outfile.print(locus.testcode())
 			args.outfile.print('\n')
 	elif args.format == 'check':
+		try:
+			from thefuzz import fuzz
+		except:
+			pass
 		for locus in genbank:
 			for feature in locus.features(include='CDS'):
 				#if feature.frame('left') != feature.frame('right') and not feature.is_joined():
@@ -260,7 +264,7 @@ if __name__ == "__main__":
 				if 'translation' in feature.tags:
 					tag = feature.tags['translation'][0].replace(' ','').replace('"','')[1:]
 					trans = feature.translation()[1:-1]
-					if fuzz.ratio(tag, trans) < 80:
+					if 'thefuzz' in sys.modules and fuzz.ratio(tag, trans) < 80:
 						args.outfile.print(feature)
 						args.outfile.print('\n')
 
