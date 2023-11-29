@@ -12,6 +12,10 @@ from genbank.feature import grouper
 from genbank.sequence import Seq
 from genbank.translate import Translate
 
+def wrap(text, width=10):
+	for i in range(0, len(text), width):
+		yield text[i:i+width]
+
 def rev_comp(dna):
 	a = 'acgtrykmbvdh'
 	b = 'tgcayrmkvbhd'
@@ -266,8 +270,7 @@ class Locus(dict):
 					# should there be spaces after ORIGIN?
 					outfile.write('ORIGIN      ')
 					i = 0
-					dna = textwrap.wrap(self.dna, 10)
-					for block in dna:
+					for block in wrap(self.dna, 10):
 						if(i%60 == 0):
 							outfile.write('\n')
 							outfile.write(str(i+1).rjust(9))

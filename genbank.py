@@ -100,7 +100,7 @@ if __name__ == "__main__":
 		if not sys.stdin.isatty():
 			stdin = sys.stdin.readlines()
 		for locus in genbank:
-			# you have to add one feature to make the locus permanant iter
+			# you have to add one feature to make the locus permanent iter
 			for line in stdin:
 				if args.add == 'genbank':
 					pass
