@@ -25,17 +25,17 @@ You can also build a Locus object from the ground up:
 from genbank.locus import Locus
 locus = Locus('test', 'actgactgatcgtagctagc')
 # then add a feature by parsing text of a genbank feature
-locus.read_feature('  CDS  1..10')
+locus.read_feature('  CDS  1..9')
 # or add manually by specifing the type,strand,location
-locus.add_feature('CDS',+1,[['10','20']])
+locus.add_feature('CDS',+1,[['6','20']])
 locus.write()
 ```
 which gives:
 ```
 LOCUS       test                      20 bp
 FEATURES             Location/Qualifiers
-     CDS             1..10
-     CDS             10..20
+     CDS             1..9
+     CDS             6..20
 ORIGIN
         1 actgactgat cgtagctagc
 //
