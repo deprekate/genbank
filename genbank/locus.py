@@ -238,7 +238,13 @@ class Locus(dict):
 			return 'coding'
 
 	def write(self, args):
-		getattr(self, args.format)(args.outfile)
+		if isinstance(args, str):
+			if hasattr(self, args):
+				getattr(self, args)(sys.stdout)
+			else:
+				raise ValueError('invalid outfile format')
+		else:
+			getattr(self, args.format)(args.outfile)
 
 	def fasta(self, outfile):
 		outfile.write(">")
