@@ -28,7 +28,7 @@ locus = Locus('test', 'actgactgatcgtagctagc')
 locus.read_feature('  CDS  1..9')
 # or add manually by specifing the type,strand,location
 locus.add_feature('CDS',+1,[['6','20']])
-locus.write()
+locus.write('genbank')
 ```
 which gives:
 ```
