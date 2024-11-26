@@ -14,7 +14,7 @@ from genbank.file import File
 
 file = File('infile.gbk')
 for locus in file:
-	print(name)
+	print(llocus.name())
 	for feature in locus:
 		print(feature)
 ```
