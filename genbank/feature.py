@@ -33,7 +33,7 @@ class Feature():
 		if self.type != 'CDS':
 			return 0
 		elif end == 'right' or self.partial() == 'left':
-			return (self.right()%3+1) * self.strand
+			return ((self.right()-2)%3+1) * self.strand
 		elif end == 'left' or self.partial() == 'right':
 			return (self.left()%3+1) * self.strand
 
@@ -44,7 +44,7 @@ class Feature():
 	
 	def right(self):
 		# convert genbank 1-based indexing to standard 0-based
-		return nint(self.pairs[-1][-1]) - 3
+		return nint(self.pairs[-1][-1]) - 1
 	
 	def length(self):
 		return len(self.seq())
