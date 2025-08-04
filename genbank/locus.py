@@ -361,7 +361,11 @@ class Locus(dict):
 			outfile.write("\t")
 			outfile.write(".")
 			outfile.write("\t")
+			# write ID for the feature
+			outfile.write("ID=")
+			outfile.write(self.name() + "_CDS_[" + feature.locations() + "]")
 			for tag,values in feature.tags.items():
+				outfile.write(";")
 				for value in values:
 					outfile.write(str(tag))
 					if value is None:
